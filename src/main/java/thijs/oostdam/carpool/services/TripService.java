@@ -31,6 +31,7 @@ public class TripService {
      */
     public Trip createTrip(ITrip iTrip) {
         Optional<Driver> driverOptional = carpoolRepository.getDriver(iTrip.driver().email());
+        //TODO factor out orElse as it does a possibly unnecessary db call.
         Driver driver = driverOptional.orElse(domainFactory.driver(iTrip.driver().email(), iTrip.driver().name()));
 
         Collection<Trip> futureTrips = carpoolRepository.searchTripsByDriverId(driver.id());

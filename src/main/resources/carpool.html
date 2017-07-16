@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
     <script src="carpool.js"></script>
 </head>
 <body>
 
-<h2>My First JavaScript</h2>
+<label for="name">name</label> <input id="name" type="text"> <br>
+<label for="email">email</label> <input id="email" type="text"> <br>
+<label for="passengers">passengers</label> <input id="passengers" type="number"> <br>
+<label for="stop1lat">stop1lat</label> <input id="stop1lat" type="number"> <br>
+<label for="stop1long">stop1long</label> <input id="stop1long" type="number"> <br>
+<label for="stop1departure">stop1departure</label> <input id="stop1departure" type="datetime"> <br>
+<label for="stop2lat">stop2lat</label> <input id="stop2lat" type="number"> <br>
+<label for="stop2long">stop2long</label> <input id="stop2long" type="number"> <br>
+<label for="stop2departure">stop2departure</label> <input id="stop2departure" type="datetime"> <br>
 
-<button type="button"
-        onclick="document.getElementById('demo').innerHTML = Date()">
-    Click me to display Date and Time.</button>
-
-<p id="demo"></p>
+<button id="submitBtn">submit</button>
 
 </body>
 </html>

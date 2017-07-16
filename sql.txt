@@ -1,0 +1,61 @@
+CREATE TABLE COUNTER(count BIGINT);
+
+INSERT INTO COUNTER (count) VALUES (0);
+
+UPDATE COUNTER SET count = (SELECT count FROM COUNTER FETCH FIRST ROW ONLY)  + 1;
+
+SELECT count FROM COUNTER FETCH FIRST ROW ONLY;
+
+
+INSERT INTO STOP (ID, DEPARTURE , LATITUDE , LONGITUDE ) VALUES (1, CURRENT_TIMESTAMP,1,1) ;
+INSERT INTO STOP (ID, DEPARTURE , LATITUDE , LONGITUDE ) VALUES (2, CURRENT_TIMESTAMP,2,2) ;
+INSERT INTO STOP (ID, DEPARTURE , LATITUDE , LONGITUDE ) VALUES (3, CURRENT_TIMESTAMP,3,3) ;
+INSERT INTO STOP (ID, DEPARTURE , LATITUDE , LONGITUDE ) VALUES (4, CURRENT_TIMESTAMP,4,4) ;
+
+INSERT INTO PERSON (ID, EMAIL , NAME ) VALUES (5, 'email1', 'name1');
+INSERT INTO PERSON (ID, EMAIL , NAME ) VALUES (6, 'email2', 'name2');
+INSERT INTO PERSON (ID, EMAIL , NAME ) VALUES (7, 'email3', 'name3');
+INSERT INTO PERSON (ID, EMAIL , NAME ) VALUES (8, 'email4', 'name4');
+INSERT INTO PERSON (ID, EMAIL , NAME ) VALUES (9, 'email5', 'name5');
+INSERT INTO PERSON (ID, EMAIL , NAME ) VALUES (10, 'email6', 'name6');
+
+INSERT INTO TRIP (ID, DRIVER_ID , MAX_PASSENGERS ) VALUES (11, 5,4);
+INSERT INTO TRIP (ID, DRIVER_ID , MAX_PASSENGERS ) VALUES (12, 8,5);
+
+INSERT INTO STOPS ( STOP_ID , TRIP_ID ) VALUES ( 1,11);
+INSERT INTO STOPS ( STOP_ID , TRIP_ID ) VALUES ( 2,11);
+INSERT INTO STOPS ( STOP_ID , TRIP_ID ) VALUES ( 3,12);
+INSERT INTO STOPS ( STOP_ID , TRIP_ID ) VALUES ( 4,12);
+
+INSERT INTO PASSENGERS( PERSON_ID , TRIP_ID ) VALUES ( 6,11);
+INSERT INTO PASSENGERS( PERSON_ID , TRIP_ID ) VALUES ( 7,11);
+INSERT INTO PASSENGERS( PERSON_ID , TRIP_ID ) VALUES ( 9,12);
+INSERT INTO PASSENGERS( PERSON_ID , TRIP_ID ) VALUES ( 10,12);
+
+
+SELECT trip.*, driver.*, stop.*, passenger.*        
+FROM trip
+INNER JOIN person as driver ON trip.driver_id = driver.id
+INNER JOIN stops ON trip.id = stops.trip_id
+INNER JOIN stop ON stops.stop_id = stop.id
+INNER JOIN passengers ON trip.id = passengers.trip_id
+INNER JOIN person as passenger ON passengers.person_id = passenger.id
+WHERE trip.driver_id = 5;
+
+SELECT trip.id as tripId, trip.max_passengers, driver.id as driverId, driver.email as driverEmail, driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure, passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName
+FROM trip
+INNER JOIN person as driver ON trip.driver_id = driver.id
+INNER JOIN stops ON trip.id = stops.trip_id
+INNER JOIN stop ON stops.stop_id = stop.id
+INNER JOIN passengers ON trip.id = passengers.trip_id
+INNER JOIN person as passenger ON passengers.person_id = passenger.id
+WHERE trip.driver_id = 5;
+
+DROP TABLE COUNTER ;
+DROP TABLE PASSENGERS;
+DROP TABLE STOPS;
+DROP TABLE STOP;
+DROP TABLE TRIP;
+DROP TABLE PERSON;
+DROP TABLE DATABASECHANGELOG ;
+DROP TABLE DATABASECHANGELOGLOCK ;

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet id="person table" author="Thijs Oostdam">
+    <createTable tableName="person">
+      <column name="id" type="int">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="email" type="varchar(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex indexName="idx_person"
+                 tableName="person"
+                 unique="true">
+      <column name="id"/>
+    </createIndex>
+    <createIndex indexName="idx_person_email"
+                 tableName="person"
+                 unique="true">
+      <column name="email"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="trip table" author="Thijs Oostdam">
+    <createTable tableName="trip">
+      <column name="id" type="int" >
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="driver_id" type="int">
+        <constraints nullable="false" />
+      </column>
+      <column name="max_passengers" type="int">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex indexName="idx_trip"
+                 tableName="trip"
+                 unique="true">
+      <column name="id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseColumnNames="driver_id"
+                             baseTableName="trip"
+                             constraintName="fk_trip_person"
+                             referencedColumnNames="id"
+                             referencedTableName="person"/>
+  </changeSet>
+
+
+  <changeSet id="stop table" author="Thijs Oostdam">
+    <createTable tableName="stop">
+      <column name="id" type="int">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="longitude" type="double">
+        <constraints nullable="false" />
+      </column>
+      <column name="latitude" type="double">
+        <constraints nullable="false" />
+      </column>
+      <column name="departure" type="DateTime">
+        <constraints nullable="true" />
+      </column>
+    </createTable>
+    <createIndex indexName="idx_stop"
+                 tableName="stop"
+                 unique="true">
+      <column name="id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="stop trip relation table" author="Thijs Oostdam">
+    <createTable tableName="stops">
+      <column name="trip_id" type="int">
+        <constraints nullable="false" />
+      </column>
+      <column name="stop_id" type="int">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <createIndex indexName="idx_stops_trip_id"
+                 tableName="stops"
+                 unique="false">
+      <column name="trip_id"/>
+    </createIndex>
+
+    <addForeignKeyConstraint baseColumnNames="trip_id"
+                             baseTableName="stops"
+                             constraintName="fk_stops_trip"
+                             referencedColumnNames="id"
+                             referencedTableName="trip"/>
+
+    <addForeignKeyConstraint baseColumnNames="stop_id"
+                             baseTableName="stops"
+                             constraintName="fk_stops_stop"
+                             referencedColumnNames="id"
+                             referencedTableName="stop"/>
+  </changeSet>
+
+  <changeSet id="person trip relation table" author="Thijs Oostdam">
+    <createTable tableName="passengers">
+      <column name="trip_id" type="int">
+        <constraints nullable="false" />
+      </column>
+      <column name="person_id" type="int">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <!--index for when finding passengers for a specific trip-->
+    <createIndex indexName="idx_passengers_trip"
+                 tableName="passengers"
+                 unique="false">
+      <column name="trip_id"/>
+    </createIndex>
+
+    <!--index for when finding trips for a person-->
+    <createIndex indexName="idx_passengers_person"
+                 tableName="passengers"
+                 unique="false">
+      <column name="person_id"/>
+    </createIndex>
+
+    <addForeignKeyConstraint baseColumnNames="trip_id"
+                             baseTableName="passengers"
+                             constraintName="fk_passengers_trip"
+                             referencedColumnNames="id"
+                             referencedTableName="trip"/>
+
+    <addForeignKeyConstraint baseColumnNames="person_id"
+                             baseTableName="passengers"
+                             constraintName="fk_passengers_person"
+                             referencedColumnNames="id"
+                             referencedTableName="person"/>
+  </changeSet>
+
+
+
+
+</databaseChangeLog>

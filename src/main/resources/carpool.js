@@ -7,7 +7,19 @@
             .fail(function() {console.log( "fail" );})
             .always(function() {console.log( "always" );});
         });
+
+        $("#listBtn").click(function(){
+            $.get("/trips", function(data){
+                var trips = JSON.parse(data);
+                var pretty = JSON.stringify(trips, undefined, 2)
+                console.log("got trips", pretty);
+                $("#trips").text(pretty);
+            })
+        });
+
     });
+
+
 
     var createTrip = function(){
         var trip = {

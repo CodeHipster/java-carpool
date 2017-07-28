@@ -24,21 +24,28 @@
         $("#listTrips").click(function () {
             $.get("/trips", function (data) {
                 var trips = JSON.parse(data);
+                //clear list
+                $("#trips").empty();
+                //add items to list
+                trips.forEach(function(trip){
+                    var newTrip = $("#tripTemplate").clone();
+                    $(".email", newTrip).text(trip.driver.email);
+                    //TODO: add rest of fields
+                    $("#trips").append(newTrip);
+                });
                 var pretty = JSON.stringify(trips, undefined, 2);
                 console.log("got trips", pretty);
-                $("#trips").text(pretty);
             })
         });
-
     });
 
     var getTripData = function () {
         var trip = {
-            maxPassengers: $("#trip .passengers").val(),
             driver: {
                 email: $("#trip .email").val(),
                 name: $("#trip .name").val()
             },
+            maxPassengers: $("#trip .passengers").val(),
             stops: []
         };
 

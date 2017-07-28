@@ -3,7 +3,6 @@ package thijs.oostdam.carpool;
 import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import thijs.oostdam.carpool.config.Database;
 import thijs.oostdam.carpool.config.Routing;
 
@@ -25,5 +24,4 @@ public class Main {
         LOG.info("starting service");
         server.start();
     }
-
 }

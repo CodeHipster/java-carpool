@@ -34,10 +34,12 @@ public class TripHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange t) throws IOException {
+        OutputStream os = t.getResponseBody();
         try {
             String response;
             if (t.getRequestMethod().equals("POST")) {
                 String body = CharStreams.toString(new InputStreamReader(t.getRequestBody(), Charsets.UTF_8));
+                LOG.info("trip to be added: \n{}", body);
                 ITrip input = new Gson().fromJson(body, TripHttp.class);
                 ITrip output = tripService.createTrip(input);
                 response = gson.toJson(new TripHttp(output));
@@ -54,12 +56,13 @@ public class TripHandler implements HttpHandler {
             }else{
                 response = "we not know your method " + t.getRequestMethod();
             }
-            OutputStream os = t.getResponseBody();
             t.sendResponseHeaders(200, response.getBytes().length);
             os.write(response.getBytes());
-            os.close();
         } catch (Exception e) {
-            LOG.error("something went wrong when creating a trip.", e);
+            LOG.error("something went wrong when creating a trip: {}", e.getMessage(), e);
+            t.sendResponseHeaders(500, 0);
+        } finally {
+            os.close();
         }
     }
 }

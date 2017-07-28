@@ -1,17 +1,30 @@
-(function(){//IIFE
+(function () {//IIFE
 
-    $(function() {
-        $("#submitBtn").click(function(){
-            $.post("/trip",createTrip(), function(){console.log("posted");})
-            .done(function(){console.log("done");})
-            .fail(function() {console.log( "fail" );})
-            .always(function() {console.log( "always" );});
+    $(function () {
+        $("#addTrip").click(function () {
+            console.log("adding trip");
+            $.post("/trip", getTripData(), function () {
+                console.log("posted");
+            })
+                .done(function () {
+                    console.log("done");
+                })
+                .fail(function () {
+                    console.log("fail");
+                })
+                .always(function () {
+                    console.log("always");
+                });
         });
 
-        $("#listBtn").click(function(){
-            $.get("/trips", function(data){
+        $("#addStop").click(function () {
+            //add new stop to list.
+        });
+
+        $("#listTrips").click(function () {
+            $.get("/trips", function (data) {
                 var trips = JSON.parse(data);
-                var pretty = JSON.stringify(trips, undefined, 2)
+                var pretty = JSON.stringify(trips, undefined, 2);
                 console.log("got trips", pretty);
                 $("#trips").text(pretty);
             })
@@ -19,28 +32,27 @@
 
     });
 
-
-
-    var createTrip = function(){
+    var getTripData = function () {
         var trip = {
-            maxPassengers : $("#passengers").val(),
-            driver : {
-                email : $("#email").val(),
-                name: $("#name").val()
+            maxPassengers: $("#trip .passengers").val(),
+            driver: {
+                email: $("#trip .email").val(),
+                name: $("#trip .name").val()
             },
-            stops : [{
-                departure : $("#stop1departure").val(),
-                latitude : $("#stop1lat").val(),
-                longitude : $("#stop1long").val()
-            },{
-                departure : $("#stop2departure").val(),
-                latitude : $("#stop2lat").val(),
-                longitude : $("#stop2long").val()
-            }]
+            stops: []
         };
-        return JSON.stringify(trip);
+
+        var stops = $("#trip .stops .stop").each(function (index) {
+            console.log(index + ": " + $(this).text());
+            var stop = {
+                latitude: $(".latitude", this).val(),
+                longitude: $(".longitude", this).val(),
+                departure: $(".departure", this).val()
+            };
+            trip.stops.push(stop);
+        });
+        var stringify = JSON.stringify(trip);
+        console.log(stringify);
+        return stringify;
     }
-
-
-
-})() //IIFE
+})(); //IIFE

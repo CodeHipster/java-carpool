@@ -8,23 +8,63 @@
 </head>
 <body>
 
-<label for="name">name</label> <input id="name" type="text"> <br>
-<label for="email">email</label> <input id="email" type="text"> <br>
-<label for="passengers">passengers</label> <input id="passengers" type="number"> <br>
-<label for="stop1lat">stop1lat</label> <input id="stop1lat" type="number"> <br>
-<label for="stop1long">stop1long</label> <input id="stop1long" type="number"> <br>
-<label for="stop1departure">stop1departure</label> <input id="stop1departure" type="datetime"> <br>
-<label for="stop2lat">stop2lat</label> <input id="stop2lat" type="number"> <br>
-<label for="stop2long">stop2long</label> <input id="stop2long" type="number"> <br>
-<label for="stop2departure">stop2departure</label> <input id="stop2departure" type="datetime"> <br>
+<header>
+    <h1>EBPI CARPOOL</h1>
+</header>
 
-<button id="submitBtn">submit</button>
+<!--new trip-->
+<div id="trip">
+    <label>name</label> <input class="name"> <br>
+    <label>email</label> <input class="email"> <br>
+    <label>passengers</label> <input class="passengers" type="number"> <br>
+    <ul class="stops">
+        <li class="stop">
+            <label>latitude</label> <input class="latitude" type="number"> <br>
+            <label>longitude</label> <input class="longitude" type="number"> <br>
+            <label>departure</label> <input class="departure" type="datetime"> <br>
+        </li>
+        <li class="stop">
+            <label>latitude</label> <input class="latitude" type="number"> <br>
+            <label>longitude</label> <input class="longitude" type="number"> <br>
+            <label>departure</label> <input class="departure" type="datetime"> <br>
+        </li>
+        <li>
+            <button id="addStop">add stop</button>
+        </li>
+    </ul>
+    <button id="addTrip">add trip</button>
+</div>
 
-<button id="listBtn">submit</button>
+<!--all trips-->
+<div id="trips">
+    <button id="listTrips">refresh trips</button>
+    <ul>
 
-<p id="trips">
+    </ul>
+</div>
 
-</p>
+<!--templates to be used, should be hidden-->
+<div id="templates" hidden>
+    <div id="stopInputTemplate">
+        <li class="stop">
+            <label>latitude</label> <input class="latitude" type="number"> <br>
+            <label>longitude</label> <input class="longitude" type="number"> <br>
+            <label>departure</label> <input class="departure" type="datetime"> <br>
+        </li>
+    </div>
+    <div id="tripTemplate">
+        name <span class="name"></span> <br>
+        email <span class="email"></span> <br>
+        passengers <span class="passengers"></span> <br>
+        <ul class="stops">
+            <li class="stop">
+                latitude <span class="latitude"></span> <br>
+                longitude <span class="longitude"></span> <br>
+                departure <span class="departure"></span> <br>
+            </li>
+        </ul>
+    </div>
+</div>
 
 </body>
 </html>

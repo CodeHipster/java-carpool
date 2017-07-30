@@ -3,7 +3,7 @@
     $(function () {
         $("#addTrip").click(function () {
             console.log("adding trip");
-            $.post("/trip", getTripData(), function () {
+            $.post("/trip", getNewTripData(), function () {
                 console.log("posted");
             })
                 .done(function () {
@@ -29,17 +29,29 @@
                 //add items to list
                 trips.forEach(function(trip){
                     var newTrip = $("#tripTemplate").clone();
+                    newTrip.removeAttr('id');
+                    $(".name", newTrip).text(trip.driver.name);
                     $(".email", newTrip).text(trip.driver.email);
+                    $(".passengers", newTrip).text(trip.driver.email);
+                    trip.stops.forEach(function(stop){
+                        console.log("stop: ", stop);
+                        var newStop = $("#stopTemplate .stop").clone();
+                        $(".latitude", newStop).text(stop.latitude);
+                        $(".longitude", newStop).text(stop.longitude);
+                        $(".departure", newStop).text(stop.departure);
+                        $(".stops", newTrip).append(newStop);
+                    });
+
                     //TODO: add rest of fields
                     $("#trips").append(newTrip);
                 });
                 var pretty = JSON.stringify(trips, undefined, 2);
-                console.log("got trips", pretty);
+                //console.log("got trips", pretty);
             })
         });
     });
 
-    var getTripData = function () {
+    var getNewTripData = function () {
         var trip = {
             driver: {
                 email: $("#trip .email").val(),
@@ -59,7 +71,6 @@
             trip.stops.push(stop);
         });
         var stringify = JSON.stringify(trip);
-        console.log(stringify);
         return stringify;
     }
 })(); //IIFE

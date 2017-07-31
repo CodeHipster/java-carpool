@@ -1,5 +1,15 @@
 #Carpool!
 
-#TODO:
-- proper error handling on handlers
-- custom exceptions for input problems
+###TODO:
+- frontend:
+  - clean input data
+  - datetime input field for departure
+- features:
+  - modify trips
+     - delete
+     - change passengers/stops
+- backend:
+  - check doubly booked trips.   
+  
+     
+

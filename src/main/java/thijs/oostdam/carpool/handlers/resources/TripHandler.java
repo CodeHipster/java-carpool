@@ -34,6 +34,7 @@ public class TripHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange t) throws IOException {
+        //OutputStream is incompatible with java7 try with resources.
         OutputStream os = t.getResponseBody();
         try {
             String response;

@@ -8,8 +8,7 @@
   - modify trips
      - delete
      - change passengers/stops
-- backend:
-  - check doubly booked trips.   
+- backend: 
   
      
 

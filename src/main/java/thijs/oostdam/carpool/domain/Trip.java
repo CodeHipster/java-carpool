@@ -1,14 +1,13 @@
 package thijs.oostdam.carpool.domain;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Range;
 import thijs.oostdam.carpool.domain.interfaces.IPassenger;
 import thijs.oostdam.carpool.domain.interfaces.IStop;
 import thijs.oostdam.carpool.domain.interfaces.ITrip;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,13 +49,29 @@ public class Trip implements ITrip {
      * <p>
      * tripsForDriver will be used to check if there will be overlap with another trip.
      *
-     * @param driver,         person to drive the car
+     * @param driver,         person to drive the car.
      * @param stops,          places where the trip will stop for sometime.
      * @param tripsForDriver, all trips the driver participates in.
-     * @return
+     * @return the newly created trip.
      */
     public static Trip createTrip(int id, Driver driver, Collection<Stop> stops, int maxPassengers, Collection<Trip> tripsForDriver) {
-        //TODO: check if the driver is already participating in a trip at the requested time.
+        //Stops cannot be empty in the domain.
+        Preconditions.checkArgument(stops.size() > 1);
+        Instant from = stops.stream().min(Comparator.comparing(Stop::departure)).get().departure();
+        Instant to = stops.stream().max(Comparator.comparing(Stop::departure)).get().departure();
+        Range<Instant> tripDuration = Range.closed(from, to);
+
+        Optional<Trip> overlappingTrip = tripsForDriver.stream().filter(trip -> {
+            Instant existingFrom = trip.stops.stream().min(Comparator.comparing(Stop::departure)).get().departure();
+            Instant existingTo = trip.stops.stream().max(Comparator.comparing(Stop::departure)).get().departure();
+            Range<Instant> existingTripDuration = Range.closed(existingFrom, existingTo);
+            return tripDuration.isConnected(existingTripDuration);
+        }).findAny();
+
+        if(overlappingTrip.isPresent()){
+            throw new IllegalArgumentException("New trip would overlap an existing trip for driver: " + driver.email());
+        }
+
         return new Trip(id, driver, stops, new ArrayList<>(maxPassengers), maxPassengers);
     }
 

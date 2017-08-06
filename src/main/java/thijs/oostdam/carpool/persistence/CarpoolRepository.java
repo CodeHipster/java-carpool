@@ -226,6 +226,17 @@ public class CarpoolRepository {
         upsertPerson(passenger);
     }
 
+    public void addStop(int tripId, Stop stop) {
+        upsertStop(stop);
+        linkStop(tripId, stop.id());
+    }
+
+    public void removeStop(int stopId) {
+        //TODO: refactor db model to link stops directly to trip.
+        //jdbcTemplate.update("DELETE FROM STOP WHERE ID IN (SELECT STOP_ID FROM STOPS WHERE TRIP_ID = ?)", id);
+        jdbcTemplate.update("DELETE FROM STOPS WHERE STOP_ID = ?", stopId);
+    }
+
     /**
      * TripExtractor
      * <p>

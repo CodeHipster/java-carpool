@@ -9,10 +9,10 @@ import java.time.Instant;
  * @author Thijs Oostdam on 5-7-17.
  */
 public class StopHttp implements IStop{
-    public String departure;
     private int id;
     private double latitude;
     private double longitude;
+    public String departure;
 
     public StopHttp(IStop iStop) {
         this.id = iStop.id();

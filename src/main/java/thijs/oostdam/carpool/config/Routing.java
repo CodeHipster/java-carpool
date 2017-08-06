@@ -36,6 +36,7 @@ public class Routing {
             server.createContext("/trip", new TripHandler(tripService));
             server.createContext("/trips", new TripsHandler(tripService));
             server.createContext("/trip/passenger", new PassengerHandler(tripService));
+            server.createContext("/trip/stop", new PassengerHandler(tripService));
             return server;
         } catch (IOException e) {
             throw new IllegalStateException("Could not start server", e);

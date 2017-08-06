@@ -2,11 +2,10 @@
 
 ###TODO:
 - features:
-  - modify trips
-     - delete
-     - change passengers/stops
+  - delete passenger
   - login and user management
 - frontend:
+  - add/delete stop button
   - clean input data
   - datetime input field for departure
   - styling

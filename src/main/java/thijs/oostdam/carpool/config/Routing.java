@@ -3,10 +3,9 @@ package thijs.oostdam.carpool.config;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import org.springframework.jdbc.core.JdbcTemplate;
+
 import thijs.oostdam.carpool.domain.DomainFactory;
-import thijs.oostdam.carpool.handlers.resources.PeopleHandler;
-import thijs.oostdam.carpool.handlers.resources.PersonHandler;
+import thijs.oostdam.carpool.handlers.resources.PassengerHandler;
 import thijs.oostdam.carpool.handlers.resources.TripHandler;
 import thijs.oostdam.carpool.handlers.resources.TripsHandler;
 import thijs.oostdam.carpool.handlers.staticcontent.CssHandler;
@@ -34,10 +33,9 @@ public class Routing {
             server.createContext("/", new HtmlHandler());
             server.createContext("/carpool.js", new JsHandler());
             server.createContext("/carpool.css", new CssHandler());
-            server.createContext("/person", new PersonHandler());
-            server.createContext("/people", new PeopleHandler());
             server.createContext("/trip", new TripHandler(tripService));
             server.createContext("/trips", new TripsHandler(tripService));
+            server.createContext("/trip/passenger", new PassengerHandler(tripService));
             return server;
         } catch (IOException e) {
             throw new IllegalStateException("Could not start server", e);

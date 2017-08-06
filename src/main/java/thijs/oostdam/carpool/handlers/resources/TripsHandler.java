@@ -5,15 +5,12 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thijs.oostdam.carpool.domain.Trip;
-import thijs.oostdam.carpool.handlers.dto.StopHttp;
 import thijs.oostdam.carpool.handlers.dto.TripHttp;
 import thijs.oostdam.carpool.services.TripService;
 
@@ -34,7 +31,7 @@ public class TripsHandler implements HttpHandler {
         try {
             String response;
             if (t.getRequestMethod().equals("GET")) {
-                Collection<Trip> trips = tripService.searchTrips();
+                Collection<Trip> trips = tripService.getTrips();
                 Collection<TripHttp> output = trips.stream().map(TripHttp::new).collect(Collectors.toList());
                 response = new Gson().toJson(output);
             } else {

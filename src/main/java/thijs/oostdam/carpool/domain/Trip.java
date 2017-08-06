@@ -44,37 +44,6 @@ public class Trip implements ITrip {
         this.passengers = passengers;
     }
 
-    /**
-     * Create a new trip for a driver.
-     * <p>
-     * tripsForDriver will be used to check if there will be overlap with another trip.
-     *
-     * @param driver,         person to drive the car.
-     * @param stops,          places where the trip will stop for sometime.
-     * @param tripsForDriver, all trips the driver participates in.
-     * @return the newly created trip.
-     */
-    public static Trip createTrip(int id, Driver driver, Collection<Stop> stops, int maxPassengers, Collection<Trip> tripsForDriver) {
-        //Stops cannot be empty in the domain.
-        Preconditions.checkArgument(stops.size() > 1);
-        Instant from = stops.stream().min(Comparator.comparing(Stop::departure)).get().departure();
-        Instant to = stops.stream().max(Comparator.comparing(Stop::departure)).get().departure();
-        Range<Instant> tripDuration = Range.closed(from, to);
-
-        Optional<Trip> overlappingTrip = tripsForDriver.stream().filter(trip -> {
-            Instant existingFrom = trip.stops.stream().min(Comparator.comparing(Stop::departure)).get().departure();
-            Instant existingTo = trip.stops.stream().max(Comparator.comparing(Stop::departure)).get().departure();
-            Range<Instant> existingTripDuration = Range.closed(existingFrom, existingTo);
-            return tripDuration.isConnected(existingTripDuration);
-        }).findAny();
-
-        if(overlappingTrip.isPresent()){
-            throw new IllegalArgumentException("New trip would overlap an existing trip for driver: " + driver.email());
-        }
-
-        return new Trip(id, driver, stops, new ArrayList<>(maxPassengers), maxPassengers);
-    }
-
     public Trip addPassenger(Passenger passenger) {
         if (passengers.size() < maxPassengers) passengers.add(passenger);
         else throw new IllegalStateException("There is no more room for passengers on this trip.");
@@ -92,12 +61,12 @@ public class Trip implements ITrip {
     }
 
     @Override
-    public Collection<? extends IStop> stops() {
+    public Collection<Stop> stops() {
         return stops;
     }
 
     @Override
-    public Collection<? extends IPassenger> passengers() {
+    public Collection<Passenger> passengers() {
         return passengers;
     }
 

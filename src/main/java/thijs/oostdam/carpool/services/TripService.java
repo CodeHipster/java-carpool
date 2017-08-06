@@ -1,12 +1,13 @@
 package thijs.oostdam.carpool.services;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import thijs.oostdam.carpool.domain.*;
+import thijs.oostdam.carpool.domain.interfaces.IPerson;
 import thijs.oostdam.carpool.domain.interfaces.ITrip;
-import thijs.oostdam.carpool.handlers.dto.TripHttp;
 import thijs.oostdam.carpool.persistence.CarpoolRepository;
 
 /**
@@ -31,10 +32,16 @@ public class TripService {
      */
     public Trip createTrip(ITrip iTrip) {
         Optional<Driver> driverOptional = carpoolRepository.getDriver(iTrip.driver().email());
-        //TODO factor out orElse as it does a possibly unnecessary db call.
-        Driver driver = driverOptional.orElse(domainFactory.driver(iTrip.driver().email(), iTrip.driver().name()));
 
-        Collection<Trip> futureTrips = carpoolRepository.searchTripsByDriverId(driver.id());
+        Driver driver;
+        Collection<Trip> existingTrips;
+        if(driverOptional.isPresent()){
+            driver = driverOptional.get();
+            existingTrips = carpoolRepository.searchTripsByDriverId(driver.id());
+        }else{
+            driver = domainFactory.driver(iTrip.driver().email(), iTrip.driver().name());
+            existingTrips = new ArrayList<>();
+        }
 
         Collection<Stop> stops = iTrip.stops().stream()
                 .map(iStop -> domainFactory.stop(
@@ -43,7 +50,7 @@ public class TripService {
                         iStop.departure()))
                 .collect(Collectors.toList());
 
-        Trip trip = domainFactory.trip(driver, stops, iTrip.maxPassengers(), futureTrips);
+        Trip trip = domainFactory.trip(driver, stops, iTrip.maxPassengers(), existingTrips);
 
         carpoolRepository.storeTrip(trip);
         return trip;
@@ -54,7 +61,37 @@ public class TripService {
                 .orElseThrow(() -> new IllegalArgumentException("No trip exists for id: " + id));
     }
 
-    public Collection<Trip> searchTrips() {
-        return carpoolRepository.searchTrips();
+    public Collection<Trip> getTrips() {
+        return carpoolRepository.getTrips();
+    }
+
+    public void deleteTrip(int id) {
+        carpoolRepository.deleteTrip(id);
+    }
+
+    public void addPassenger(int tripId, IPerson newPassenger) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(newPassenger.email()), "Email of passenger must be given.");
+        //check if trip exists.
+        Optional<Trip> tripOptional = carpoolRepository.searchTrip(tripId);
+        Preconditions.checkArgument(tripOptional.isPresent(), "Trip(%s) must exist before adding passenger(%s)", tripId, newPassenger.email());
+        Trip trip = tripOptional.get();
+
+        //check if passenger exists, if not create.
+        Optional<Passenger> optPassenger = carpoolRepository.getPassenger(newPassenger.email());
+        Passenger passenger;
+        if(optPassenger.isPresent()){
+            passenger = optPassenger.get();
+            Collection<Trip> trips = carpoolRepository.searchTripsByPassengerId(passenger.id());
+            if(OverlapComparator.overlap(trip, trips)){
+                throw new IllegalArgumentException("Passenger("+passenger.email()+") already has a trip booked.");
+            }
+        }else{
+            //create new person
+            passenger = domainFactory.passenger(newPassenger.email(), newPassenger.name());
+            carpoolRepository.addPerson(passenger);
+        }
+
+        //add to trip
+        carpoolRepository.addPassenger(trip.id(), passenger.id());
     }
 }

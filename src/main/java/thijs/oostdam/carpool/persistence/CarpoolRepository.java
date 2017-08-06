@@ -1,5 +1,7 @@
 package thijs.oostdam.carpool.persistence;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -9,6 +11,7 @@ import thijs.oostdam.carpool.domain.*;
 import thijs.oostdam.carpool.domain.interfaces.IPerson;
 import thijs.oostdam.carpool.domain.interfaces.IStop;
 import thijs.oostdam.carpool.domain.interfaces.ITrip;
+import thijs.oostdam.carpool.handlers.resources.TripHandler;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -20,6 +23,7 @@ import java.util.*;
  * Created by Thijs on 14-7-2017.
  */
 public class CarpoolRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(CarpoolRepository.class);
     private JdbcTemplate jdbcTemplate;
     private TransactionTemplate transactionTemplate;
 
@@ -31,6 +35,15 @@ public class CarpoolRepository {
     public Optional<Driver> getDriver(String email) {
         List<Driver> query = jdbcTemplate.query("SELECT id, email, name FROM person WHERE email = ?", new Object[]{email}
                 , (ResultSet rs, int rowNum) -> new Driver(rs.getInt("id"), rs.getString("email"), rs.getString("name")));
+
+        if (query.isEmpty()) return Optional.empty();
+            //TODO warning if more then 1 records returned?
+        else return Optional.of(query.get(0));
+    }
+
+    public Optional<Passenger> getPassenger(String email) {
+        List<Passenger> query = jdbcTemplate.query("SELECT id, email, name FROM person WHERE email = ?", new Object[]{email}
+                , (ResultSet rs, int rowNum) -> new Passenger(rs.getInt("id"), rs.getString("email"), rs.getString("name")));
 
         if (query.isEmpty()) return Optional.empty();
             //TODO warning if more then 1 records returned?
@@ -49,6 +62,20 @@ public class CarpoolRepository {
                 "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n" +
                 "WHERE trip.driver_id = ?";
         return jdbcTemplate.query(sql, new Object[]{driverId}, new TripExtractor());
+    }
+
+    public Collection<Trip> searchTripsByPassengerId(int passengerId) {
+        String sql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, driver.id as driverId, driver.email as driverEmail" +
+                ", driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
+                ", passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName \n" +
+                "FROM trip \n" +
+                "INNER JOIN person as driver ON trip.driver_id = driver.id\n" +
+                "INNER JOIN stops ON trip.id = stops.trip_id\n" +
+                "INNER JOIN stop ON stops.stop_id = stop.id\n" +
+                "LEFT JOIN passengers ON trip.id = passengers.trip_id\n" +
+                "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n" +
+                "WHERE passengerId = ?";
+        return jdbcTemplate.query(sql, new Object[]{passengerId}, new TripExtractor());
     }
 
     /**
@@ -165,7 +192,7 @@ public class CarpoolRepository {
         return query.stream().findFirst();
     }
 
-    public Collection<Trip> searchTrips() {
+    public Collection<Trip> getTrips() {
         String sql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, driver.id as driverId, driver.email as driverEmail" +
                 ", driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
                 ", passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName \n" +
@@ -176,6 +203,27 @@ public class CarpoolRepository {
                 "LEFT JOIN passengers ON trip.id = passengers.trip_id\n" +
                 "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n";
         return jdbcTemplate.query(sql, new Object[]{}, new TripExtractor());
+    }
+
+    /**
+     * Delete a trip. if it existed it will be deleted, if it did not exist, no need to delete...
+     * @param id
+     */
+    public void deleteTrip(int id) {
+        jdbcTemplate.update("DELETE FROM PASSENGERS WHERE TRIP_ID = ?", id);
+        jdbcTemplate.update("DELETE FROM STOPS WHERE TRIP_ID = ?", id);
+        //TODO: refactor db model to link stops directly to trip.
+        //jdbcTemplate.update("DELETE FROM STOP WHERE ID IN (SELECT STOP_ID FROM STOPS WHERE TRIP_ID = ?)", id);
+        jdbcTemplate.update("DELETE FROM TRIP WHERE ID = ?", id);
+    }
+
+    public void addPassenger(int tripId, int passengerId) {
+        String sql = "INSERT INTO PASSENGERS (TRIP_ID, PERSON_ID) VALUES(?,?)";
+        jdbcTemplate.update(sql, tripId, passengerId);
+    }
+
+    public void addPerson(Person passenger) {
+        upsertPerson(passenger);
     }
 
     /**

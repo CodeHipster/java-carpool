@@ -54,6 +54,16 @@ public class TripHandler implements HttpHandler {
                 //TODO: try parse and throw proper exception.
                 Trip output = tripService.findTrip(Integer.parseInt(idQuery.getValue()));
                 response = new Gson().toJson(new TripHttp(output));
+            }else if(t.getRequestMethod().equals("DELETE")){
+                List<NameValuePair> queryParams = URLEncodedUtils.parse(t.getRequestURI(), Charsets.UTF_8.name());
+                NameValuePair idQuery = queryParams
+                        .stream()
+                        .filter(q -> q.getName().equalsIgnoreCase("id"))
+                        .findFirst().orElseThrow(() -> new IllegalArgumentException("query param 'id' is required for DELETE method."));
+
+                tripService.deleteTrip(Integer.parseInt(idQuery.getValue()));
+                response = "";
+                //return 204?
             }else{
                 response = "we not know your method " + t.getRequestMethod();
             }

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="/carpool.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"
             integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
             crossorigin="anonymous"></script>
@@ -13,10 +15,10 @@
 </header>
 
 <!--new trip-->
-<div id="trip">
+<div id="trip" class="row">
     <label>name</label> <input class="name"> <br>
     <label>email</label> <input class="email"> <br>
-    <label>passengers</label> <input class="passengers" type="number"> <br>
+    <label>max. passengers</label> <input class="maxPassengers" type="number"> <br>
     <ul class="stops">
         <li class="stop">
             <label>latitude</label> <input class="latitude" type="number"> <br>
@@ -52,18 +54,38 @@
             <label>departure</label> <input class="departure" type="datetime"> <br>
         </li>
     </div>
-    <div id="tripTemplate">
-        name <span class="name"></span> <br>
-        email <span class="email"></span> <br>
-        passengers <span class="passengers"></span> <br>
-        <ul class="stops">
-        </ul>
+    <div id="tripTemplate" class="row">
+        <div class="col-4">
+            name <span class="name"></span> <br>
+            email <span class="email"></span> <br>
+            max. passengers <span class="maxPassengers"></span> <br>
+            <button class="deleteTrip">delete trip</button>
+        </div>
+        <div class="col-4">
+            <ul class="stops">
+            </ul>
+        </div>
+        <div class="col-4">
+            <ul class="passengers">
+                <li>
+                    <label>name</label> <input class="name"> <br>
+                    <label>email</label> <input class="email"> <br>
+                    <button class="addPassenger">add passenger</button>
+                </li>
+            </ul>
+        </div>
     </div>
     <div id="stopTemplate">
         <li class="stop">
             latitude <span class="latitude"></span> <br>
             longitude <span class="longitude"></span> <br>
             departure <span class="departure"></span> <br>
+        </li>
+    </div>
+    <div id="passengerTemplate">
+        <li class="passenger">
+            name <span class="name"></span> <br>
+            email <span class="email"></span> <br>
         </li>
     </div>
 </div>

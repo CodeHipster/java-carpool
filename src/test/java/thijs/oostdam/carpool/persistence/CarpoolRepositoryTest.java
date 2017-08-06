@@ -7,10 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import thijs.oostdam.carpool.config.Database;
-import thijs.oostdam.carpool.domain.DomainFactory;
-import thijs.oostdam.carpool.domain.Driver;
-import thijs.oostdam.carpool.domain.Stop;
-import thijs.oostdam.carpool.domain.Trip;
+import thijs.oostdam.carpool.domain.*;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -88,6 +85,25 @@ class CarpoolRepositoryTest {
 
         trips = fixture.searchTripsByDriverId(driver2.id());
         assertThat(trips.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void storePassenger(){
+        //insert trip for driver 1
+        Driver driver1 = domainFactory.driver("email1", "name1");
+        Collection<Stop> stops = new ArrayList<>();
+        stops.add(domainFactory.stop(1,1, Instant.now()));
+        stops.add(domainFactory.stop(2,2, Instant.now()));
+        Trip trip = domainFactory.trip(driver1, stops, 5, fixture.searchTripsByDriverId(driver1.id()));
+
+        fixture.storeTrip(trip);
+        Passenger passenger = domainFactory.passenger("email2", "name2");
+        fixture.addPerson(passenger);
+        fixture.addPassenger(trip.id(), passenger.id());
+
+        Collection<Trip> trips = fixture.searchTripsByDriverId(driver1.id());
+        assertThat(trips.size()).isEqualTo(1);
+        assertThat(trips.stream().findFirst().get().passengers().stream().findFirst().get().email()).isEqualTo("email2");
     }
 
     //TODO test error messages.

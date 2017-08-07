@@ -83,7 +83,7 @@ public class CarpoolRepository {
                 "INNER JOIN stop ON stops.stop_id = stop.id\n" +
                 "LEFT JOIN passengers ON trip.id = passengers.trip_id\n" +
                 "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n" +
-                "WHERE passengerId = ?";
+                "WHERE passenger.id = ?";
         return jdbcTemplate.query(sql, new Object[]{passengerId}, new TripExtractor());
     }
 

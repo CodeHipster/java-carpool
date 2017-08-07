@@ -32,7 +32,7 @@
             <label>departure</label> <input class="departure" type="datetime"> <br>
         </li>
         <li>
-            <button id="addStop">add stop</button>
+            <button id="extraStopInput">extra stop</button>
         </li>
     </ul>
     <button id="addTrip">add trip</button>
@@ -64,6 +64,12 @@
         </div>
         <div class="col-4">
             <ul class="stops">
+                <li>
+                    <label>latitude</label> <input class="latitude" type="number"> <br>
+                    <label>longitude</label> <input class="longitude" type="number"> <br>
+                    <label>departure</label> <input class="departure" type="datetime"> <br>
+                    <button class="addStop">add stop</button>
+                </li>
             </ul>
         </div>
         <div class="col-4">
@@ -81,12 +87,14 @@
             latitude <span class="latitude"></span> <br>
             longitude <span class="longitude"></span> <br>
             departure <span class="departure"></span> <br>
+            <button class="removeStop">remove</button>
         </li>
     </div>
     <div id="passengerTemplate">
         <li class="passenger">
             name <span class="name"></span> <br>
             email <span class="email"></span> <br>
+            <button class="removePassenger">remove</button>
         </li>
     </div>
 </div>

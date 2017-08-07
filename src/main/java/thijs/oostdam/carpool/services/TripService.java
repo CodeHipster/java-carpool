@@ -129,6 +129,7 @@ public class TripService {
     }
 
     public void removeStop(int stopId) {
+        //TODO, w're skipping the domain here...
         carpoolRepository.removeStop(stopId);
     }
 

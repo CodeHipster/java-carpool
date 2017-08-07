@@ -6,12 +6,12 @@
 
         //register buttons.
         $("#addTrip").click(postNewTrip);
-        $("#addStop").click(addStopInput);
+        $("#extraStopInput").click(extraStopInput);
         $("#listTrips").click(refreshTrips);
     });
 
     // add another stop input block
-    var addStopInput = function(){
+    var extraStopInput = function(){
         var newStopInput = $('#stopInputTemplate .stop').clone();
         $(newStopInput).insertAfter('#trip .stops .stop:last');
     };
@@ -36,16 +36,24 @@
                     $(".latitude", newStop).text(stop.latitude);
                     $(".longitude", newStop).text(stop.longitude);
                     $(".departure", newStop).text(stop.departure);
-                    $(".stops", htmlTrip).append(newStop);
+                    //wire remove button
+                    $(".removeStop", newStop).click(function(){
+                        removeStop(stop.id);
+                    });
+                    $(".stops", htmlTrip).prepend(newStop);
                 });
                 trip.passengers.forEach(function(passenger){
                     console.log("passenger: ", passenger);
                     var newPassenger = $("#passengerTemplate .passenger").clone();
                     $(".name", newPassenger).text(passenger.name);
                     $(".email", newPassenger).text(passenger.email);
+                    //wire remove button
+                    $(".removePassenger", newPassenger).click(function(){
+                        removePassenger(trip.id, passenger.id);
+                    });
                     $(".passengers", htmlTrip).prepend(newPassenger);
                 });
-                //wire add passenger button
+                //wire buttons
                 $(".addPassenger", htmlTrip).click(function(){
                     var data = {
                         id: trip.id,
@@ -56,6 +64,17 @@
                     };
                     postNewPassenger(data);
                 });
+                $(".addStop", htmlTrip).click(function(){
+                    var data = {
+                        id: trip.id,
+                        stops: [{
+                            latitude: $(this).siblings(".latitude").val(),
+                            longitude: $(this).siblings(".longitude").val(),
+                            departure: $(this).siblings(".departure").val()
+                        }]
+                    };
+                    postNewStop(data);
+                });
                 $(".deleteTrip", htmlTrip).click(function(){
                     deleteTrip(trip.id);
                 });
@@ -64,15 +83,29 @@
         });
     };
 
+    var removePassenger = function(tripId, passengerId){
+        $.delete("/trip/passenger?trip-id="+tripId+"&passenger-id="+ passengerId);
+    }
+
+    var removeStop = function(stopId){
+        $.delete("/trip/stop?id="+stopId);
+    };
+
     var deleteTrip = function(tripId){
         $.delete("/trip?id="+tripId);
-    }
+    };
 
     var postNewPassenger = function(trip){
         var postData = JSON.stringify(trip);
         console.log("posting new passenger: ", postData);
         $.post("/trip/passenger", postData);
-    }
+    };
+
+    var postNewStop = function(trip){
+        var postData = JSON.stringify(trip);
+        console.log("posting new stop: ", postData);
+        $.post("/trip/stop", postData);
+    };
 
     // parse new trip input and send to server.
     var postNewTrip = function () {

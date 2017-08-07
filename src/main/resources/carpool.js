@@ -18,8 +18,9 @@
 
     // remove trips from page, download from server and add them to page
     var refreshTrips = function(){
-        $.get("/trips", function (data) {
-            var trips = JSON.parse(data);
+        $.get("/trips", function (trips) {
+            //console.log("/trips data: ", data);
+            //var trips = JSON.parse(data);
             //clear list
             $("#trips").empty();
             //add items to list

@@ -3,26 +3,13 @@ package thijs.oostdam.carpool.handlers.resources;
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
-
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
-
-import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.junit.jupiter.api.*;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.Test;
 import thijs.oostdam.carpool.handlers.dto.TripHttp;
 import thijs.oostdam.carpool.services.TripService;
-
-import javax.sql.DataSource;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Matchers.isNotNull;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Thijs Oostdam on 6-7-17.
@@ -40,7 +27,7 @@ class TripHandlerTest extends BasehandlerTest{
         tripHandler.handle(post);
         String response = post.getResponseBody().toString();
 
-        assertEquals("{\"id\":4,\"maxPassengers\":5,\"driver\":{\"id\":1,\"email\":\"oostdam@gmail.com\",\"name\":\"Thijs Oostdam\"},\"stops\":[{\"departure\":\"2010-01-01T12:00:00Z\",\"id\":2,\"latitude\":1.0,\"longitude\":1.0},{\"departure\":\"2010-01-01T13:00:00Z\",\"id\":3,\"latitude\":2.0,\"longitude\":2.0}],\"passengers\":[]}", response);
+        assertEquals("{\"id\":4,\"maxPassengers\":5,\"driver\":{\"id\":1,\"email\":\"oostdam@gmail.com\",\"name\":\"Thijs Oostdam\"},\"stops\":[{\"id\":2,\"latitude\":1.0,\"longitude\":1.0,\"departure\":\"2010-01-01T12:00:00Z\"},{\"id\":3,\"latitude\":2.0,\"longitude\":2.0,\"departure\":\"2010-01-01T13:00:00Z\"}],\"passengers\":[]}", response);
 
         TripHttp insertedTrip = gson.fromJson(response, TripHttp.class);
 
@@ -49,7 +36,7 @@ class TripHandlerTest extends BasehandlerTest{
         tripHandler.handle(get);
         response = get.getResponseBody().toString();
 
-        assertEquals("{\"id\":4,\"maxPassengers\":5,\"driver\":{\"id\":1,\"email\":\"oostdam@gmail.com\",\"name\":\"Thijs Oostdam\"},\"stops\":[{\"departure\":\"2010-01-01T12:00:00Z\",\"id\":2,\"latitude\":1.0,\"longitude\":1.0},{\"departure\":\"2010-01-01T13:00:00Z\",\"id\":3,\"latitude\":2.0,\"longitude\":2.0}],\"passengers\":[]}", response);
+        assertEquals("{\"id\":4,\"maxPassengers\":5,\"driver\":{\"id\":1,\"email\":\"oostdam@gmail.com\",\"name\":\"Thijs Oostdam\"},\"stops\":[{\"id\":2,\"latitude\":1.0,\"longitude\":1.0,\"departure\":\"2010-01-01T12:00:00Z\"},{\"id\":3,\"latitude\":2.0,\"longitude\":2.0,\"departure\":\"2010-01-01T13:00:00Z\"}],\"passengers\":[]}", response);
     }
 
     @Test
@@ -62,7 +49,7 @@ class TripHandlerTest extends BasehandlerTest{
         tripHandler.handle(post);
         String response = post.getResponseBody().toString();
 
-        assertEquals("{\"id\":4,\"maxPassengers\":5,\"driver\":{\"id\":1,\"email\":\"oostdam@gmail.com\",\"name\":\"Thijs Oostdam\"},\"stops\":[{\"departure\":\"2010-01-01T12:00:00Z\",\"id\":2,\"latitude\":1.0,\"longitude\":1.0},{\"departure\":\"2010-01-01T13:00:00Z\",\"id\":3,\"latitude\":2.0,\"longitude\":2.0}],\"passengers\":[]}", response);
+        assertEquals("{\"id\":4,\"maxPassengers\":5,\"driver\":{\"id\":1,\"email\":\"oostdam@gmail.com\",\"name\":\"Thijs Oostdam\"},\"stops\":[{\"id\":2,\"latitude\":1.0,\"longitude\":1.0,\"departure\":\"2010-01-01T12:00:00Z\"},{\"id\":3,\"latitude\":2.0,\"longitude\":2.0,\"departure\":\"2010-01-01T13:00:00Z\"}],\"passengers\":[]}", response);
 
         TripHttp insertedTrip = gson.fromJson(response, TripHttp.class);
 

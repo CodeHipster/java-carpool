@@ -1,5 +1,17 @@
 package thijs.oostdam.carpool.persistence;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -7,17 +19,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import thijs.oostdam.carpool.domain.*;
+import thijs.oostdam.carpool.domain.Driver;
+import thijs.oostdam.carpool.domain.Passenger;
+import thijs.oostdam.carpool.domain.Person;
+import thijs.oostdam.carpool.domain.Stop;
+import thijs.oostdam.carpool.domain.Trip;
 import thijs.oostdam.carpool.domain.interfaces.IPerson;
 import thijs.oostdam.carpool.domain.interfaces.IStop;
 import thijs.oostdam.carpool.domain.interfaces.ITrip;
-import thijs.oostdam.carpool.handlers.resources.TripHandler;
-
-import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
 
 /**
  * Created by Thijs on 14-7-2017.
@@ -235,6 +244,10 @@ public class CarpoolRepository {
         //TODO: refactor db model to link stops directly to trip.
         //jdbcTemplate.update("DELETE FROM STOP WHERE ID IN (SELECT STOP_ID FROM STOPS WHERE TRIP_ID = ?)", id);
         jdbcTemplate.update("DELETE FROM STOPS WHERE STOP_ID = ?", stopId);
+    }
+
+    public void removePassenger(int tripId, int passengerId) {
+        jdbcTemplate.update("DELETE FROM PASSENGERS WHERE TRIP_ID = ? AND PERSON_ID = ?", tripId, passengerId);
     }
 
     /**

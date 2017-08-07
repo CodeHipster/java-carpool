@@ -131,4 +131,8 @@ public class TripService {
     public void removeStop(int stopId) {
         carpoolRepository.removeStop(stopId);
     }
+
+    public void removePassenger(int tripId, int passengerId) {
+        carpoolRepository.removePassenger(tripId, passengerId);
+    }
 }

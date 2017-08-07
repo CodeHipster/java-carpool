@@ -6,19 +6,17 @@ import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import thijs.oostdam.carpool.domain.Trip;
-import thijs.oostdam.carpool.domain.interfaces.ITrip;
-import thijs.oostdam.carpool.handlers.dto.TripHttp;
-import thijs.oostdam.carpool.services.TripService;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import thijs.oostdam.carpool.domain.interfaces.ITrip;
+import thijs.oostdam.carpool.handlers.dto.TripHttp;
+import thijs.oostdam.carpool.services.TripService;
 
 /**
  * @author Thijs Oostdam on 5-7-17.
@@ -59,6 +57,7 @@ public class StopHandler implements HttpHandler {
             }else{
                 response = "we not know your method " + t.getRequestMethod();
             }
+            t.getResponseHeaders().add("Content-Type","application/json");
             t.sendResponseHeaders(200, response.getBytes().length);
             os.write(response.getBytes());
         } catch (Exception e) {

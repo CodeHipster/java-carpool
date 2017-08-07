@@ -3,18 +3,15 @@ package thijs.oostdam.carpool.handlers.resources;
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import thijs.oostdam.carpool.handlers.dto.TripHttp;
 import thijs.oostdam.carpool.services.TripService;
-
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PassengerHandlerTest extends BasehandlerTest{
 

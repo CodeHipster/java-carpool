@@ -38,6 +38,7 @@ public class TripsHandler implements HttpHandler {
                 response = "we not know your method " + t.getRequestMethod();
             }
             OutputStream os = t.getResponseBody();
+            t.getResponseHeaders().add("Content-Type","application/json");
             t.sendResponseHeaders(200, response.getBytes().length);
             os.write(response.getBytes());
             os.close();

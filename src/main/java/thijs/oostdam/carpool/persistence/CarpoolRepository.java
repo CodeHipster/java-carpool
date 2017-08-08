@@ -3,14 +3,7 @@ package thijs.oostdam.carpool.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +28,47 @@ public class CarpoolRepository {
     private static final Logger LOG = LoggerFactory.getLogger(CarpoolRepository.class);
     private JdbcTemplate jdbcTemplate;
     private TransactionTemplate transactionTemplate;
+    private String getTripsSql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, driver.id as driverId, driver.email as driverEmail" +
+            ", driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
+            ", passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName \n" +
+            "FROM trip \n" +
+            "INNER JOIN person as driver ON trip.driver_id = driver.id\n" +
+            "INNER JOIN stop ON stop.trip_id = trip.id\n" +
+            "LEFT JOIN passengers ON trip.id = passengers.trip_id\n" +
+            "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n";
 
     public CarpoolRepository(DataSource dataSource) {
         this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
+    public Collection<Trip> getTrips() {
+        return jdbcTemplate.query(getTripsSql, new Object[]{}, new TripExtractor());
+    }
+
+    public Optional<Trip> searchTrip(int id) {
+        String sql = getTripsSql +
+                "WHERE trip.id = ?";
+        Collection<Trip> query = jdbcTemplate.query(sql, new Object[]{id}, new TripExtractor());
+
+        return query.stream().findFirst();
+    }
+
+    public void storeTrip(Trip trip) {
+        transactionTemplate.execute(transactionStatus -> {
+            //First delete trip.
+            deleteTrip(trip.id());
+            //Then add again.
+            upsertPerson(trip.driver());
+            insert(trip);
+            trip.passengers().forEach(passenger -> {
+                upsertPerson(passenger);
+                linkParticipant(trip.id(), passenger.id());
+            });
+            trip.stops().forEach(stop -> insertStop(stop, trip.id()));
+            //TODO: give meaning to return value?
+            return true;
+        });
     }
 
     public Optional<Driver> getDriver(String email) {
@@ -60,57 +90,23 @@ public class CarpoolRepository {
     }
 
     public Collection<Trip> searchTripsByDriverId(int driverId) {
-        String sql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, driver.id as driverId, driver.email as driverEmail" +
-                ", driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
-                ", passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName \n" +
-                "FROM trip \n" +
-                "INNER JOIN person as driver ON trip.driver_id = driver.id\n" +
-                "INNER JOIN stops ON trip.id = stops.trip_id\n" +
-                "INNER JOIN stop ON stops.stop_id = stop.id\n" +
-                "LEFT JOIN passengers ON trip.id = passengers.trip_id\n" +
-                "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n" +
+        String sql = getTripsSql +
                 "WHERE trip.driver_id = ?";
         return jdbcTemplate.query(sql, new Object[]{driverId}, new TripExtractor());
     }
 
     public Collection<Trip> searchTripsByPassengerId(int passengerId) {
-        String sql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, driver.id as driverId, driver.email as driverEmail" +
-                ", driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
-                ", passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName \n" +
-                "FROM trip \n" +
-                "INNER JOIN person as driver ON trip.driver_id = driver.id\n" +
-                "INNER JOIN stops ON trip.id = stops.trip_id\n" +
-                "INNER JOIN stop ON stops.stop_id = stop.id\n" +
-                "LEFT JOIN passengers ON trip.id = passengers.trip_id\n" +
-                "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n" +
+        String sql = getTripsSql +
                 "WHERE passenger.id = ?";
         return jdbcTemplate.query(sql, new Object[]{passengerId}, new TripExtractor());
     }
 
-    /**
-     * update/insert
-     *
-     * @param trip
-     */
-    public void storeTrip(Trip trip) {
-        transactionTemplate.execute(transactionStatus -> {
-                    upsertPerson(trip.driver());
-                    upsertTrip(trip);
-                    trip.passengers().stream().forEach(passenger -> {
-                        upsertPerson(passenger);
-                        linkPassenger(trip.id(), passenger.id());
-                    });
-                    trip.stops().stream().forEach(stop -> {
-                        upsertStop(stop);
-                        linkStop(trip.id(), stop.id());
-                    });
-                    //TODO: give meaning to return value?
-                    return true;
-                }
-        );
+    public void deleteTrip(int tripId){
+        String sql = "DELETE FROM TRIP WHERE ID = ?";
+        jdbcTemplate.update(sql, tripId);
     }
 
-    private void linkPassenger(int tripId, int passengerId) {
+    private void linkParticipant(int tripId, int passengerId) {
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM PASSENGERS WHERE TRIP_ID = ? and PERSON_ID = ?"
                 , new Object[]{tripId, passengerId}, Integer.class);
         //TODO: should warn for anything besides count 0 or 1;
@@ -121,18 +117,7 @@ public class CarpoolRepository {
         }
     }
 
-    private void linkStop(int tripId, int stopId) {
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM STOPS WHERE TRIP_ID = ? and STOP_ID = ?"
-                , new Object[]{tripId, stopId}, Integer.class);
-        //TODO: should warn for anything besides count 0 or 1;
-        if (count == 0) {
-            jdbcTemplate.update("INSERT INTO STOPS (TRIP_ID, STOP_ID) VALUES (?, ?)"
-                    , tripId
-                    , stopId);
-        }
-    }
-
-    private void upsertTrip(ITrip trip) {
+    private void insert(ITrip trip) {
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(ID) FROM TRIP WHERE ID = ?", new Object[]{trip.id()}, Integer.class);
 
         //TODO: should warn for anything besides count 0 or 1;
@@ -149,7 +134,7 @@ public class CarpoolRepository {
         }
     }
 
-    private void upsertStop(IStop stop) {
+    private void insertStop(IStop stop, int tripId) {
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(ID) FROM STOP WHERE ID = ?", new Object[]{stop.id()}, Integer.class);
 
         //TODO: should warn for anything besides count 0 or 1;
@@ -160,8 +145,9 @@ public class CarpoolRepository {
                     , stop.longitude()
                     , stop.id());
         } else {
-            jdbcTemplate.update("INSERT INTO STOP (ID, DEPARTURE , LATITUDE, LONGITUDE ) VALUES (?, ?, ?, ?)"
+            jdbcTemplate.update("INSERT INTO STOP (ID, TRIP_ID, DEPARTURE , LATITUDE, LONGITUDE ) VALUES (?, ?, ?, ?, ?)"
                     , stop.id()
+                    , tripId
                     , Timestamp.from(stop.departure())
                     , stop.latitude()
                     , stop.longitude());
@@ -183,71 +169,6 @@ public class CarpoolRepository {
                     , person.email()
                     , person.name());
         }
-    }
-
-    public Optional<Trip> searchTrip(int id) {
-        String sql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, driver.id as driverId, driver.email as driverEmail" +
-                ", driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
-                ", passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName \n" +
-                "FROM trip \n" +
-                "INNER JOIN person as driver ON trip.driver_id = driver.id\n" +
-                "INNER JOIN stops ON trip.id = stops.trip_id\n" +
-                "INNER JOIN stop ON stops.stop_id = stop.id\n" +
-                "LEFT JOIN passengers ON trip.id = passengers.trip_id\n" +
-                "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n" +
-                "WHERE trip.id = ?";
-        Collection<Trip> query = jdbcTemplate.query(sql, new Object[]{id}, new TripExtractor());
-
-        return query.stream().findFirst();
-    }
-
-    public Collection<Trip> getTrips() {
-        String sql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, driver.id as driverId, driver.email as driverEmail" +
-                ", driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
-                ", passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName \n" +
-                "FROM trip \n" +
-                "INNER JOIN person as driver ON trip.driver_id = driver.id\n" +
-                "INNER JOIN stops ON trip.id = stops.trip_id\n" +
-                "INNER JOIN stop ON stops.stop_id = stop.id\n" +
-                "LEFT JOIN passengers ON trip.id = passengers.trip_id\n" +
-                "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n";
-        return jdbcTemplate.query(sql, new Object[]{}, new TripExtractor());
-    }
-
-    /**
-     * Delete a trip. if it existed it will be deleted, if it did not exist, no need to delete...
-     * @param id
-     */
-    public void deleteTrip(int id) {
-        jdbcTemplate.update("DELETE FROM PASSENGERS WHERE TRIP_ID = ?", id);
-        jdbcTemplate.update("DELETE FROM STOPS WHERE TRIP_ID = ?", id);
-        //TODO: refactor db model to link stops directly to trip.
-        //jdbcTemplate.update("DELETE FROM STOP WHERE ID IN (SELECT STOP_ID FROM STOPS WHERE TRIP_ID = ?)", id);
-        jdbcTemplate.update("DELETE FROM TRIP WHERE ID = ?", id);
-    }
-
-    public void addPassenger(int tripId, int passengerId) {
-        String sql = "INSERT INTO PASSENGERS (TRIP_ID, PERSON_ID) VALUES(?,?)";
-        jdbcTemplate.update(sql, tripId, passengerId);
-    }
-
-    public void addPerson(Person passenger) {
-        upsertPerson(passenger);
-    }
-
-    public void addStop(int tripId, Stop stop) {
-        upsertStop(stop);
-        linkStop(tripId, stop.id());
-    }
-
-    public void removeStop(int stopId) {
-        //TODO: refactor db model to link stops directly to trip.
-        //jdbcTemplate.update("DELETE FROM STOP WHERE ID IN (SELECT STOP_ID FROM STOPS WHERE TRIP_ID = ?)", id);
-        jdbcTemplate.update("DELETE FROM STOPS WHERE STOP_ID = ?", stopId);
-    }
-
-    public void removePassenger(int tripId, int passengerId) {
-        jdbcTemplate.update("DELETE FROM PASSENGERS WHERE TRIP_ID = ? AND PERSON_ID = ?", tripId, passengerId);
     }
 
     /**

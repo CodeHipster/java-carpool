@@ -22,6 +22,7 @@ class PassengerHandlerTest extends BasehandlerTest{
         TripService tripService = new TripService(carpoolRepository, domainFactory);
 
         TripHandler tripHandler = new TripHandler(tripService);
+        TripsHandler tripsHandler = new TripsHandler(tripService);
         PassengerHandler passengerHandler = new PassengerHandler(tripService);
 
         //add a trip
@@ -48,14 +49,14 @@ class PassengerHandlerTest extends BasehandlerTest{
         assertEquals("", response);
 
         //fetch the trip
-        HttpExchange get = mockHttpExchange("GET", "http://localhost:8082/trip?id=" + insertedTrip.id(), new ByteArrayInputStream("".getBytes()));
-        tripHandler.handle(get);
+        HttpExchange get = mockHttpExchange("GET", "http://localhost:8082/trips" + insertedTrip.id(), new ByteArrayInputStream("".getBytes()));
+        tripsHandler.handle(get);
         response = get.getResponseBody().toString();
 
         //assert that passenger is in trip.
-        TripHttp tripHttp = gson.fromJson(response, TripHttp.class);
-        assertThat(tripHttp.passengers().size()).isEqualTo(1);
-        assertThat(tripHttp.passengers().stream().findFirst().get().email()).isEqualTo("email2@email.com");
-        assertThat(tripHttp.passengers().stream().findFirst().get().name()).isEqualTo("Some Name 2");
+        TripHttp[] tripHttp = gson.fromJson(response, TripHttp[].class);
+        assertThat(tripHttp[0].passengers().size()).isEqualTo(1);
+        assertThat(tripHttp[0].passengers().stream().findFirst().get().email()).isEqualTo("email2@email.com");
+        assertThat(tripHttp[0].passengers().stream().findFirst().get().name()).isEqualTo("Some Name 2");
     }
 }

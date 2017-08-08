@@ -57,11 +57,6 @@ public class TripService {
         return trip;
     }
 
-    public Trip findTrip(int id) {
-        return carpoolRepository.searchTrip(id)
-                .orElseThrow(() -> new IllegalArgumentException("No trip exists for id: " + id));
-    }
-
     public Collection<Trip> getTrips() {
         return carpoolRepository.getTrips();
     }
@@ -84,17 +79,15 @@ public class TripService {
         if(optPassenger.isPresent()){
             passenger = optPassenger.get();
             Collection<Trip> trips = carpoolRepository.searchTripsByPassengerId(passenger.id());
-            if(OverlapComparator.overlap(trip, trips)){
-                throw new IllegalArgumentException("Passenger("+passenger.email()+") already has a trip booked.");
-            }
+            trip.addPassenger(passenger, trips);
         }else{
             //create new person
             passenger = domainFactory.passenger(newPassenger.email(), newPassenger.name());
-            carpoolRepository.addPerson(passenger);
+            trip.addPassenger(passenger, new ArrayList<>());
         }
 
         //add to trip
-        carpoolRepository.addPassenger(trip.id(), passenger.id());
+        carpoolRepository.storeTrip(trip);
     }
 
     public void addStop(int tripId, IStop newStop){
@@ -106,34 +99,39 @@ public class TripService {
 
         Stop stop = domainFactory.stop(newStop.latitude(), newStop.longitude(), newStop.departure());
 
-        //check if stop is between min and max
+        //If stop is before or after existing stops, check for overlap.
+
+
+        Collection<Trip> existingTrips = new ArrayList<>();
         if(!OverlapComparator.inBetween(stop, trip.stops())){
-            Collection<Trip> allRelatedTrips = new ArrayList<>();
-            allRelatedTrips.addAll(carpoolRepository.searchTripsByDriverId(trip.driver().id()));
-
             for (Passenger p : trip.passengers()) {
-                allRelatedTrips.addAll(carpoolRepository.searchTripsByPassengerId(p.id()));
+                existingTrips.addAll(carpoolRepository.searchTripsByPassengerId(p.id()));
             }
-
             //Filter out trip in question.
-            allRelatedTrips = allRelatedTrips.stream().filter(t -> t.id() != trip.id()).collect(Collectors.toList());
-
-            //Check if new trip would cause overlap.
-            trip.stops().add(stop);
-            if(OverlapComparator.overlap(trip, allRelatedTrips)){
-                throw new IllegalArgumentException("Stop would cause overlap for one of the participants.");
-            }
+            existingTrips = existingTrips.stream().filter(t -> t.id() != trip.id()).collect(Collectors.toList());
         }
 
-        carpoolRepository.addStop(tripId, stop);
+        trip.addStop(stop, existingTrips);
+
+        carpoolRepository.storeTrip(trip);
     }
 
-    public void removeStop(int stopId) {
-        //TODO, w're skipping the domain here...
-        carpoolRepository.removeStop(stopId);
+    public void removeStop(int tripId, int stopId) {
+        Optional<Trip> tripOptional = carpoolRepository.searchTrip(tripId);
+        Preconditions.checkArgument(tripOptional.isPresent(), "Trip(%s) must exist before adding a stop", tripId);
+        Trip trip = tripOptional.get();
+
+        trip.removeStop(stopId);
+
+        carpoolRepository.storeTrip(trip);
     }
 
     public void removePassenger(int tripId, int passengerId) {
-        carpoolRepository.removePassenger(tripId, passengerId);
+        Optional<Trip> tripOptional = carpoolRepository.searchTrip(tripId);
+        Preconditions.checkArgument(tripOptional.isPresent(), "Trip(%s) must exist before adding a stop", tripId);
+        Trip trip = tripOptional.get();
+
+        trip.removePassenger(passengerId);
+        carpoolRepository.storeTrip(trip);
     }
 }

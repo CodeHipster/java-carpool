@@ -51,7 +51,8 @@
                              baseTableName="trip"
                              constraintName="fk_trip_person"
                              referencedColumnNames="id"
-                             referencedTableName="person"/>
+                             referencedTableName="person"
+                             onDelete="CASCADE"/>
   </changeSet>
 
 
@@ -59,6 +60,9 @@
     <createTable tableName="stop">
       <column name="id" type="int">
         <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="trip_id" type="int">
+        <constraints nullable="false"/>
       </column>
       <column name="longitude" type="double">
         <constraints nullable="false" />
@@ -70,40 +74,19 @@
         <constraints nullable="true" />
       </column>
     </createTable>
+
     <createIndex indexName="idx_stop"
                  tableName="stop"
                  unique="true">
       <column name="id"/>
     </createIndex>
-  </changeSet>
-
-  <changeSet id="stop trip relation table" author="Thijs Oostdam">
-    <createTable tableName="stops">
-      <column name="trip_id" type="int">
-        <constraints nullable="false" />
-      </column>
-      <column name="stop_id" type="int">
-        <constraints nullable="false" />
-      </column>
-    </createTable>
-
-    <createIndex indexName="idx_stops_trip_id"
-                 tableName="stops"
-                 unique="false">
-      <column name="trip_id"/>
-    </createIndex>
 
     <addForeignKeyConstraint baseColumnNames="trip_id"
-                             baseTableName="stops"
-                             constraintName="fk_stops_trip"
+                             baseTableName="stop"
+                             constraintName="fk_stop_trip"
                              referencedColumnNames="id"
-                             referencedTableName="trip"/>
-
-    <addForeignKeyConstraint baseColumnNames="stop_id"
-                             baseTableName="stops"
-                             constraintName="fk_stops_stop"
-                             referencedColumnNames="id"
-                             referencedTableName="stop"/>
+                             referencedTableName="trip"
+                             onDelete="CASCADE"/>
   </changeSet>
 
   <changeSet id="person trip relation table" author="Thijs Oostdam">
@@ -134,13 +117,15 @@
                              baseTableName="passengers"
                              constraintName="fk_passengers_trip"
                              referencedColumnNames="id"
-                             referencedTableName="trip"/>
+                             referencedTableName="trip"
+                             onDelete="CASCADE"/>
 
     <addForeignKeyConstraint baseColumnNames="person_id"
                              baseTableName="passengers"
                              constraintName="fk_passengers_person"
                              referencedColumnNames="id"
-                             referencedTableName="person"/>
+                             referencedTableName="person"
+                             onDelete="CASCADE"/>
   </changeSet>
 
 

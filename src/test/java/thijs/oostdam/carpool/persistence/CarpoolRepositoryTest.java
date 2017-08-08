@@ -27,7 +27,7 @@ class CarpoolRepositoryTest {
     private static DomainFactory domainFactory;
 
     @BeforeAll
-    public static void beforeAll() throws SQLException {
+    static void beforeAll() throws SQLException {
 
         DataSource ds = createDatabase();
         jdbcTemplate = new JdbcTemplate(ds);
@@ -43,7 +43,6 @@ class CarpoolRepositoryTest {
     void afterEach() {
         jdbcTemplate.batchUpdate(
                 "DELETE FROM PASSENGERS",
-                "DELETE FROM STOPS",
                 "DELETE FROM STOP",
                 "DELETE FROM TRIP",
                 "DELETE FROM PERSON");
@@ -56,9 +55,9 @@ class CarpoolRepositoryTest {
         Collection<Stop> stops = new ArrayList<>();
         stops.add(domainFactory.stop(1,1, Instant.now()));
         stops.add(domainFactory.stop(2,2, Instant.now()));
-        Trip trip = domainFactory.trip(driver1, stops, 5, fixture.searchTripsByDriverId(driver1.id()));
+        Trip trip1 = domainFactory.trip(driver1, stops, 5, fixture.searchTripsByDriverId(driver1.id()));
 
-        fixture.storeTrip(trip);
+        fixture.storeTrip(trip1);
 
         Collection<Trip> trips = fixture.searchTripsByDriverId(driver1.id());
         assertThat(trips.size()).isEqualTo(1);
@@ -68,9 +67,9 @@ class CarpoolRepositoryTest {
         stops = new ArrayList<>();
         stops.add(domainFactory.stop(3,3, Instant.now()));
         stops.add(domainFactory.stop(4,4, Instant.now()));
-        trip = domainFactory.trip(driver2, stops, 5, fixture.searchTripsByDriverId(driver2.id()));
+        Trip trip2 = domainFactory.trip(driver2, stops, 5, fixture.searchTripsByDriverId(driver2.id()));
 
-        fixture.storeTrip(trip);
+        fixture.storeTrip(trip2);
 
         trips = fixture.searchTripsByDriverId(driver2.id());
         assertThat(trips.size()).isEqualTo(1);
@@ -79,32 +78,26 @@ class CarpoolRepositoryTest {
         stops = new ArrayList<>();
         stops.add(domainFactory.stop(5,5, Instant.now()));
         stops.add(domainFactory.stop(6,6, Instant.now()));
-        trip = domainFactory.trip(driver2, stops, 5, fixture.searchTripsByDriverId(driver2.id()));
+        Trip trip3 = domainFactory.trip(driver2, stops, 5, fixture.searchTripsByDriverId(driver2.id()));
 
-        fixture.storeTrip(trip);
+        fixture.storeTrip(trip3);
 
         trips = fixture.searchTripsByDriverId(driver2.id());
         assertThat(trips.size()).isEqualTo(2);
+
+        //insert the same trip again with different stops and a passenger.
+        trip3.addPassenger(domainFactory.passenger("passenger1", "passenger1"), new ArrayList<>());
+        trip3.addStop(domainFactory.stop(1,1,Instant.now()),new ArrayList<>());
+
+        fixture.storeTrip(trip3);
+
+        trips = fixture.searchTripsByDriverId(driver2.id());
+        assertThat(trips.size()).isEqualTo(2);
+        Trip fetchedTrip3 = trips.stream().filter(trip -> trip.id() == trip3.id()).findFirst().get();
+        assertThat(fetchedTrip3.passengers().size()).isEqualTo(1);
+        assertThat(fetchedTrip3.stops().size()).isEqualTo(3);
     }
 
-    @Test
-    public void storePassenger(){
-        //insert trip for driver 1
-        Driver driver1 = domainFactory.driver("email1", "name1");
-        Collection<Stop> stops = new ArrayList<>();
-        stops.add(domainFactory.stop(1,1, Instant.now()));
-        stops.add(domainFactory.stop(2,2, Instant.now()));
-        Trip trip = domainFactory.trip(driver1, stops, 5, fixture.searchTripsByDriverId(driver1.id()));
-
-        fixture.storeTrip(trip);
-        Passenger passenger = domainFactory.passenger("email2", "name2");
-        fixture.addPerson(passenger);
-        fixture.addPassenger(trip.id(), passenger.id());
-
-        Collection<Trip> trips = fixture.searchTripsByDriverId(driver1.id());
-        assertThat(trips.size()).isEqualTo(1);
-        assertThat(trips.stream().findFirst().get().passengers().stream().findFirst().get().email()).isEqualTo("email2");
-    }
 
     //TODO test error messages.
 

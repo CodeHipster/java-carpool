@@ -44,10 +44,36 @@ public class Trip implements ITrip {
         this.passengers = passengers;
     }
 
-    public Trip addPassenger(Passenger passenger) {
-        if (passengers.size() < maxPassengers) passengers.add(passenger);
+    public Trip addPassenger(Passenger passenger, Collection<Trip> existingTrips) {
+        if (passengers.size() < maxPassengers){
+            if(OverlapComparator.overlap(this, existingTrips)){
+                throw new IllegalArgumentException("Passenger("+passenger.email()+") already has a trip booked.");
+            }
+            passengers.add(passenger);
+        }
         else throw new IllegalStateException("There is no more room for passengers on this trip.");
         return this;
+    }
+
+    /**
+     * Add a stop to the trip.
+     * @param stop
+     * @param existingTrips for the passengers of this trip.
+     */
+    public void addStop(Stop stop, Collection<Trip> existingTrips) {
+        //Check if new trip would cause overlap.
+        this.stops.add(stop);
+        if(OverlapComparator.overlap(this, existingTrips)){
+            throw new IllegalArgumentException("Stop would cause overlap for one of the participants.");
+        }
+    }
+
+    public void removeStop(int stopId) {
+        stops = stops.stream().filter(stop -> stop.id() != stopId).collect(Collectors.toList());
+    }
+
+    public void removePassenger(int passengerId) {
+        passengers = passengers.stream().filter(passenger -> passenger.id() != passengerId).collect(Collectors.toList());
     }
 
     @Override

@@ -21,6 +21,7 @@ class TripHandlerTest extends BasehandlerTest{
     void handlePost() throws IOException, URISyntaxException {
         TripService tripService = new TripService(carpoolRepository, domainFactory);
         TripHandler tripHandler = new TripHandler(tripService);
+        TripsHandler tripsHandler = new TripsHandler(tripService);
 
         //test post
         HttpExchange post = mockHttpExchange("POST", "", Resources.getResource("TripHandlerTest_handlePost.json").openStream());
@@ -32,17 +33,18 @@ class TripHandlerTest extends BasehandlerTest{
         TripHttp insertedTrip = gson.fromJson(response, TripHttp.class);
 
         //test get on the created trip
-        HttpExchange get = mockHttpExchange("GET","http://localhost:8082/trip?id=" + insertedTrip.id(), new ByteArrayInputStream("".getBytes()));
-        tripHandler.handle(get);
+        HttpExchange get = mockHttpExchange("GET", "http://localhost:8082/trips" + insertedTrip.id(), new ByteArrayInputStream("".getBytes()));
+        tripsHandler.handle(get);
         response = get.getResponseBody().toString();
 
-        assertEquals("{\"id\":4,\"maxPassengers\":5,\"driver\":{\"id\":1,\"email\":\"oostdam@gmail.com\",\"name\":\"Thijs Oostdam\"},\"stops\":[{\"id\":2,\"latitude\":1.0,\"longitude\":1.0,\"departure\":\"2010-01-01T12:00:00Z\"},{\"id\":3,\"latitude\":2.0,\"longitude\":2.0,\"departure\":\"2010-01-01T13:00:00Z\"}],\"passengers\":[]}", response);
+        assertEquals("[{\"id\":4,\"maxPassengers\":5,\"driver\":{\"id\":1,\"email\":\"oostdam@gmail.com\",\"name\":\"Thijs Oostdam\"},\"stops\":[{\"id\":2,\"latitude\":1.0,\"longitude\":1.0,\"departure\":\"2010-01-01T12:00:00Z\"},{\"id\":3,\"latitude\":2.0,\"longitude\":2.0,\"departure\":\"2010-01-01T13:00:00Z\"}],\"passengers\":[]}]", response);
     }
 
     @Test
     void testDeleteHandle() throws IOException, URISyntaxException {
         TripService tripService = new TripService(carpoolRepository, domainFactory);
         TripHandler tripHandler = new TripHandler(tripService);
+        TripsHandler tripsHandler = new TripsHandler(tripService);
 
         //add trip
         HttpExchange post = mockHttpExchange("POST", "", Resources.getResource("TripHandlerTest_handlePost.json").openStream());
@@ -58,10 +60,10 @@ class TripHandlerTest extends BasehandlerTest{
         tripHandler.handle(delete);
 
         //test get on the created trip
-        HttpExchange get = mockHttpExchange("GET","http://localhost:8082/trip?id=" + insertedTrip.id(), new ByteArrayInputStream("".getBytes()));
-        tripHandler.handle(get);
+        HttpExchange get = mockHttpExchange("GET", "http://localhost:8082/trips" + insertedTrip.id(), new ByteArrayInputStream("".getBytes()));
+        tripsHandler.handle(get);
         response = get.getResponseBody().toString();
 
-        assertEquals("", response);
+        assertEquals("[]", response);
     }
 }

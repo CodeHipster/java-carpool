@@ -42,7 +42,6 @@ public abstract class BasehandlerTest {
     void beforeEach() {
         jdbcTemplate.batchUpdate(
                 "DELETE FROM PASSENGERS",
-                "DELETE FROM STOPS",
                 "DELETE FROM STOP",
                 "DELETE FROM TRIP",
                 "DELETE FROM PERSON",

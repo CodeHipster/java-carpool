@@ -46,12 +46,17 @@ public class StopHandler implements HttpHandler {
                 response = "";
             }else if(t.getRequestMethod().equals("DELETE")){
                 List<NameValuePair> queryParams = URLEncodedUtils.parse(t.getRequestURI(), Charsets.UTF_8.name());
-                NameValuePair idQuery = queryParams
+                NameValuePair tripId = queryParams
                         .stream()
-                        .filter(q -> q.getName().equalsIgnoreCase("id"))
-                        .findFirst().orElseThrow(() -> new IllegalArgumentException("query param 'id' is required for DELETE method."));
+                        .filter(q -> q.getName().equalsIgnoreCase("trip-id"))
+                        .findFirst().orElseThrow(() -> new IllegalArgumentException("query param 'trip-id' is required for DELETE method."));
 
-                tripService.removeStop(Integer.parseInt(idQuery.getValue()));
+                NameValuePair stopId = queryParams
+                        .stream()
+                        .filter(q -> q.getName().equalsIgnoreCase("stop-id"))
+                        .findFirst().orElseThrow(() -> new IllegalArgumentException("query param 'passenger-id' is required for DELETE method."));
+
+                tripService.removeStop(Integer.parseInt(tripId.getValue()),Integer.parseInt(stopId.getValue()));
                 response = "";
                 //return 204?
             }else{

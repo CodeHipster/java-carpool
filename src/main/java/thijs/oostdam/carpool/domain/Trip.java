@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * A trip is a car with a person a few passengers and stops where the car will stop.
+ * A trip is a car with a driver, a few passengers and stops where the car will stop.
  *
  * @author Thijs Oostdam on 5-7-17.
  */
@@ -73,6 +73,7 @@ public class Trip implements ITrip {
     }
 
     public void removePassenger(int passengerId) {
+        Preconditions.checkArgument(passengerId != driver.id(), "Can't remove the driver from the trip.");
         passengers = passengers.stream().filter(passenger -> passenger.id() != passengerId).collect(Collectors.toList());
     }
 

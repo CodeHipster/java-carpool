@@ -49,7 +49,7 @@ class CarpoolRepositoryTest {
 
     @Test
     void storeTrip(){
-        //insert trip for person 1
+        //insert trip for driver 1
         Person driver1 = domainFactory.person("email1", "name1");
         Collection<Stop> stops = new ArrayList<>();
         stops.add(domainFactory.stop(1,1, Instant.now()));
@@ -61,7 +61,7 @@ class CarpoolRepositoryTest {
         Collection<Trip> trips = fixture.searchTripsByDriverId(driver1.id());
         assertThat(trips.size()).isEqualTo(1);
 
-        //insert trip for person 2
+        //insert trip for driver 2
         Person driver2 = domainFactory.person("email2", "name2");
         stops = new ArrayList<>();
         stops.add(domainFactory.stop(3,3, Instant.now()));
@@ -73,7 +73,7 @@ class CarpoolRepositoryTest {
         trips = fixture.searchTripsByDriverId(driver2.id());
         assertThat(trips.size()).isEqualTo(1);
 
-        //insert another trip for person 2
+        //insert another trip for driver 2
         stops = new ArrayList<>();
         stops.add(domainFactory.stop(5,5, Instant.now()));
         stops.add(domainFactory.stop(6,6, Instant.now()));

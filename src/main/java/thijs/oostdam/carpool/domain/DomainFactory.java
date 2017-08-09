@@ -23,20 +23,26 @@ public class DomainFactory {
     public Stop stop(double latitude, double longitude, Instant departure){
         return new Stop(idGenerator.uniqueId(), latitude,longitude, departure);
     }
+
     /**
-     * Create a new trip for a person.
+     * Create a new trip for a driver.
      * <p>
      * tripsForDriver will be used to check if there will be overlap with another trip.
      *
+     * Driver will be added as a passenger.
+     *
      * @param driver,         person to drive the car.
      * @param stops,          places where the trip will stop for sometime.
-     * @param driversTrips, all trips the person participates in.
+     * @param driversTrips, all trips the driver participates in.
      * @return the newly created trip.
      */
     public Trip trip(Person driver, Collection<Stop> stops, int maxPassengers, Collection<Trip> driversTrips){
         if(OverlapComparator.overlap(stops, driversTrips)){
             throw new IllegalArgumentException("New trip would overlap an existing trip for person: " + driver.email());
         }
-        return new Trip(idGenerator.uniqueId(), driver, stops, new ArrayList<>(maxPassengers), maxPassengers);
+        //Add the driver as passenger.
+        ArrayList<Person> passengers = new ArrayList<>(maxPassengers);
+        passengers.add(driver);
+        return new Trip(idGenerator.uniqueId(), driver, stops, passengers, maxPassengers);
     }
 }

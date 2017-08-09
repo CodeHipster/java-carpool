@@ -38,7 +38,7 @@
                     $(".departure", newStop).text(stop.departure);
                     //wire remove button
                     $(".removeStop", newStop).click(function(){
-                        removeStop(stop.id);
+                        removeStop(trip.id,stop.id);
                     });
                     $(".stops", htmlTrip).prepend(newStop);
                 });
@@ -87,8 +87,8 @@
         $.delete("/trip/passenger?trip-id="+tripId+"&passenger-id="+ passengerId);
     }
 
-    var removeStop = function(stopId){
-        $.delete("/trip/stop?id="+stopId);
+    var removeStop = function(tripId, stopId){
+        $.delete("/trip/stop?trip-id="+tripId+"&stop-id=" + stopId);
     };
 
     var deleteTrip = function(tripId){

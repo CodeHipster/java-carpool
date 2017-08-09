@@ -118,7 +118,7 @@ public class TripService {
 
     public void removeStop(int tripId, int stopId) {
         Optional<Trip> tripOptional = carpoolRepository.searchTrip(tripId);
-        Preconditions.checkArgument(tripOptional.isPresent(), "Trip(%s) must exist before adding a stop", tripId);
+        Preconditions.checkArgument(tripOptional.isPresent(), "Trip(%s) must exist before removing a stop", tripId);
         Trip trip = tripOptional.get();
 
         trip.removeStop(stopId);
@@ -128,7 +128,7 @@ public class TripService {
 
     public void removePassenger(int tripId, int passengerId) {
         Optional<Trip> tripOptional = carpoolRepository.searchTrip(tripId);
-        Preconditions.checkArgument(tripOptional.isPresent(), "Trip(%s) must exist before adding a stop", tripId);
+        Preconditions.checkArgument(tripOptional.isPresent(), "Trip(%s) must exist before removing a passenger", tripId);
         Trip trip = tripOptional.get();
 
         trip.removePassenger(passengerId);

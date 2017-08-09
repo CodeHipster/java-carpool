@@ -32,8 +32,7 @@ public class Trip implements ITrip {
      */
     public Trip(int id, Driver driver, Collection<Stop> stops, Collection<Passenger> passengers, int maxPassengers) {
         Preconditions.checkNotNull(driver, "A trip needs a driver.");
-        Preconditions.checkNotNull(stops, "A trip like everything else has a beginning and end.");
-        Preconditions.checkArgument(stops.size() >= 2, "A trip like everything else has a beginning and end. (meaning atleast 2 stops)");
+        Preconditions.checkNotNull(stops, "A trip needs a list of stops, could have size 0");
         Preconditions.checkArgument(maxPassengers > 0, "A trip is not really a trip when there is no room for passengers.");
         Preconditions.checkNotNull(passengers, "A trip needs a list of passengers, could have size 0");
 
@@ -44,7 +43,7 @@ public class Trip implements ITrip {
         this.passengers = passengers;
     }
 
-    public Trip addPassenger(Passenger passenger, Collection<Trip> existingTrips) {
+    public void addPassenger(Passenger passenger, Collection<Trip> existingTrips) {
         if (passengers.size() < maxPassengers){
             if(OverlapComparator.overlap(this, existingTrips)){
                 throw new IllegalArgumentException("Passenger("+passenger.email()+") already has a trip booked.");
@@ -52,7 +51,6 @@ public class Trip implements ITrip {
             passengers.add(passenger);
         }
         else throw new IllegalStateException("There is no more room for passengers on this trip.");
-        return this;
     }
 
     /**

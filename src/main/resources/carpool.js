@@ -35,7 +35,7 @@
                     var newStop = $("#stopTemplate .stop").clone();
                     $(".latitude", newStop).text(stop.latitude);
                     $(".longitude", newStop).text(stop.longitude);
-                    $(".departure", newStop).text(stop.departure);
+                    $(".departure", newStop).text(new Date(stop.departure).toLocaleString());
                     //wire remove button
                     $(".removeStop", newStop).click(function(){
                         removeStop(trip.id,stop.id);
@@ -70,7 +70,7 @@
                         stops: [{
                             latitude: $(this).siblings(".latitude").val(),
                             longitude: $(this).siblings(".longitude").val(),
-                            departure: $(this).siblings(".departure").val()
+                            departure: new Date($(this).siblings(".departure").val()).toISOString()
                         }]
                     };
                     postNewStop(data);
@@ -123,7 +123,7 @@
             var stop = {
                 latitude: $(".latitude", this).val(),
                 longitude: $(".longitude", this).val(),
-                departure: $(".departure", this).val()
+                departure: new Date($(".departure", this).val()).toISOString()
             };
             trip.stops.push(stop);
         });

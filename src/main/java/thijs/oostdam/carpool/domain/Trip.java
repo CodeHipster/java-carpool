@@ -11,16 +11,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * A trip is a car with a driver a few passengers and stops where the car will stop.
+ * A trip is a car with a person a few passengers and stops where the car will stop.
  *
  * @author Thijs Oostdam on 5-7-17.
  */
 //TODO: check that a trip cant have stops in the past?
 public class Trip implements ITrip {
     private int id;
-    private Driver driver;
+    private Person driver;
     private Collection<Stop> stops;
-    private Collection<Passenger> passengers;
+    private Collection<Person> passengers;
     private int maxPassengers;
 
     /**
@@ -30,9 +30,10 @@ public class Trip implements ITrip {
      * @param driver, the person driving the car
      * @param stops,  places where the trip will have a stop
      */
-    public Trip(int id, Driver driver, Collection<Stop> stops, Collection<Passenger> passengers, int maxPassengers) {
+    public Trip(int id, Person driver, Collection<Stop> stops, Collection<Person> passengers, int maxPassengers) {
         Preconditions.checkNotNull(driver, "A trip needs a driver.");
-        Preconditions.checkNotNull(stops, "A trip needs a list of stops, could have size 0");
+        Preconditions.checkNotNull(stops, "A trip like everything else has a beginning and end.");
+        Preconditions.checkArgument(stops.size() >= 2, "A trip like everything else has a beginning and end. (meaning atleast 2 stops)");
         Preconditions.checkArgument(maxPassengers > 0, "A trip is not really a trip when there is no room for passengers.");
         Preconditions.checkNotNull(passengers, "A trip needs a list of passengers, could have size 0");
 
@@ -43,7 +44,7 @@ public class Trip implements ITrip {
         this.passengers = passengers;
     }
 
-    public void addPassenger(Passenger passenger, Collection<Trip> existingTrips) {
+    public void addPassenger(Person passenger, Collection<Trip> existingTrips) {
         if (passengers.size() < maxPassengers){
             if(OverlapComparator.overlap(this, existingTrips)){
                 throw new IllegalArgumentException("Passenger("+passenger.email()+") already has a trip booked.");
@@ -67,6 +68,7 @@ public class Trip implements ITrip {
     }
 
     public void removeStop(int stopId) {
+        Preconditions.checkArgument(stops.size() > 2, "Can't remove stop. A trip needs to have atleast 2 stops.");
         stops = stops.stream().filter(stop -> stop.id() != stopId).collect(Collectors.toList());
     }
 
@@ -80,7 +82,7 @@ public class Trip implements ITrip {
     }
 
     @Override
-    public Driver driver() {
+    public Person driver() {
         return driver;
     }
 
@@ -90,7 +92,7 @@ public class Trip implements ITrip {
     }
 
     @Override
-    public Collection<Passenger> passengers() {
+    public Collection<Person> passengers() {
         return passengers;
     }
 

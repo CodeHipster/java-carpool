@@ -14,7 +14,7 @@ class OverlapComparatorTest {
 
     @Test
     void overlap() {
-        Driver driver = new Driver(2, "test", "name");
+        Person driver = new Person(2, "test", "name");
         List<Stop> newStops = new ArrayList<>();
         newStops.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T12:00:00Z")));
         newStops.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T13:00:00Z")));
@@ -24,11 +24,11 @@ class OverlapComparatorTest {
         List<Stop> stopsTrip1 = new ArrayList<>();
         stopsTrip1.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T13:10:00Z")));
         stopsTrip1.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T14:00:00Z")));
-        existingTrips.add(new Trip(1, new Driver(2, "test", "name"),stopsTrip1 ,new ArrayList<>(), 5));
+        existingTrips.add(new Trip(1, new Person(2, "test", "name"),stopsTrip1 ,new ArrayList<>(), 5));
         List<Stop> stopsTrip2 = new ArrayList<>();
         stopsTrip2.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T14:10:00Z")));
         stopsTrip2.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T15:00:00Z")));
-        existingTrips.add(new Trip(1, new Driver(2, "test", "name"),stopsTrip2 ,new ArrayList<>(), 5));
+        existingTrips.add(new Trip(1, new Person(2, "test", "name"),stopsTrip2 ,new ArrayList<>(), 5));
 
         boolean overlap = OverlapComparator.overlap(trip, existingTrips);
 
@@ -37,7 +37,7 @@ class OverlapComparatorTest {
 
     @Test
     void overlapException() {
-        Driver driver = new Driver(2, "test", "name");
+        Person driver = new Person(2, "test", "name");
         List<Stop> newStops = new ArrayList<>();
         newStops.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T12:00:00Z")));
         newStops.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T13:20:00Z"))); //overlap
@@ -47,11 +47,11 @@ class OverlapComparatorTest {
         List<Stop> stopsTrip1 = new ArrayList<>();
         stopsTrip1.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T13:10:00Z")));
         stopsTrip1.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T14:00:00Z")));
-        existingTrips.add(new Trip(1, new Driver(2, "test", "name"),stopsTrip1 ,new ArrayList<>(), 5));
+        existingTrips.add(new Trip(1, new Person(2, "test", "name"),stopsTrip1 ,new ArrayList<>(), 5));
         List<Stop> stopsTrip2 = new ArrayList<>();
         stopsTrip2.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T14:10:00Z")));
         stopsTrip2.add(new Stop(1, 1, 1, Instant.parse("2010-01-01T15:00:00Z")));
-        existingTrips.add(new Trip(1, new Driver(2, "test", "name"),stopsTrip2 ,new ArrayList<>(), 5));
+        existingTrips.add(new Trip(1, new Person(2, "test", "name"),stopsTrip2 ,new ArrayList<>(), 5));
 
 
         boolean overlap = OverlapComparator.overlap(trip, existingTrips);

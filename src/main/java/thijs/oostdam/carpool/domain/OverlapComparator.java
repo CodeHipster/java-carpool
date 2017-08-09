@@ -16,7 +16,7 @@ public class OverlapComparator {
      * expects a trip to have more than 1 stop.
      */
     public static boolean overlap(Collection<Stop> stops, Collection<Trip> existingTrips){
-        Preconditions.checkArgument(stops.size() > 1);
+        Preconditions.checkArgument(stops.size() > 1,"Two stops are required to compare overlap.");
         Range<Instant> tripDuration = getDuration(stops);
 
         Optional<Trip> overlappingTrip = existingTrips.stream().filter(t -> {

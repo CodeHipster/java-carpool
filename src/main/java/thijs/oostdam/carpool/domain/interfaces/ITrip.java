@@ -1,9 +1,5 @@
 package thijs.oostdam.carpool.domain.interfaces;
 
-import thijs.oostdam.carpool.domain.Driver;
-import thijs.oostdam.carpool.domain.Passenger;
-import thijs.oostdam.carpool.domain.Stop;
-
 import java.util.Collection;
 
 /**
@@ -12,11 +8,11 @@ import java.util.Collection;
 public interface ITrip {
     int id();
 
-    IDriver driver();
+    IPerson driver();
 
     Collection<? extends IStop> stops();
 
-    Collection<? extends IPassenger> passengers();
+    Collection<? extends IPerson> passengers();
 
     int maxPassengers();
 }

@@ -12,8 +12,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import thijs.oostdam.carpool.domain.Driver;
-import thijs.oostdam.carpool.domain.Passenger;
 import thijs.oostdam.carpool.domain.Person;
 import thijs.oostdam.carpool.domain.Stop;
 import thijs.oostdam.carpool.domain.Trip;
@@ -28,11 +26,11 @@ public class CarpoolRepository {
     private static final Logger LOG = LoggerFactory.getLogger(CarpoolRepository.class);
     private JdbcTemplate jdbcTemplate;
     private TransactionTemplate transactionTemplate;
-    private String getTripsSql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, driver.id as driverId, driver.email as driverEmail" +
-            ", driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
+    private String getTripsSql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, person.id as driverId, person.email as driverEmail" +
+            ", person.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
             ", passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName \n" +
             "FROM trip \n" +
-            "INNER JOIN person as driver ON trip.driver_id = driver.id\n" +
+            "INNER JOIN person as person ON trip.driver_id = person.id\n" +
             "INNER JOIN stop ON stop.trip_id = trip.id\n" +
             "LEFT JOIN passengers ON trip.id = passengers.trip_id\n" +
             "LEFT JOIN person as passenger ON passengers.person_id = passenger.id\n";
@@ -71,18 +69,9 @@ public class CarpoolRepository {
         });
     }
 
-    public Optional<Driver> getDriver(String email) {
-        List<Driver> query = jdbcTemplate.query("SELECT id, email, name FROM person WHERE email = ?", new Object[]{email}
-                , (ResultSet rs, int rowNum) -> new Driver(rs.getInt("id"), rs.getString("email"), rs.getString("name")));
-
-        if (query.isEmpty()) return Optional.empty();
-            //TODO warning if more then 1 records returned?
-        else return Optional.of(query.get(0));
-    }
-
-    public Optional<Passenger> getPassenger(String email) {
-        List<Passenger> query = jdbcTemplate.query("SELECT id, email, name FROM person WHERE email = ?", new Object[]{email}
-                , (ResultSet rs, int rowNum) -> new Passenger(rs.getInt("id"), rs.getString("email"), rs.getString("name")));
+    public Optional<Person> getPerson(String email) {
+        List<Person> query = jdbcTemplate.query("SELECT id, email, name FROM person WHERE email = ?", new Object[]{email}
+                , (ResultSet rs, int rowNum) -> new Person(rs.getInt("id"), rs.getString("email"), rs.getString("name")));
 
         if (query.isEmpty()) return Optional.empty();
             //TODO warning if more then 1 records returned?
@@ -182,9 +171,9 @@ public class CarpoolRepository {
 
         Set<Trip> trips = new HashSet<>();
         Set<TripDto> tripDtos = new HashSet<>();
-        Map<Integer, Driver> driverMap = new HashMap<>();
+        Map<Integer, Person> driverMap = new HashMap<>();
         Map<Integer, Set<Stop>> stopMap = new HashMap<>();
-        Map<Integer, Set<Passenger>> passengersMap = new HashMap<>();
+        Map<Integer, Set<Person>> passengersMap = new HashMap<>();
 
         @Override
         public Collection<Trip> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -192,7 +181,7 @@ public class CarpoolRepository {
                 int tripId = rs.getInt("tripId");
                 TripDto trip = new TripDto(rs.getInt("tripId"), rs.getInt("maxPassengers"));
                 tripDtos.add(trip);
-                Driver driver = new Driver(rs.getInt("driverId"), rs.getString("driverEmail"), rs.getString("driverName"));
+                Person driver = new Person(rs.getInt("driverId"), rs.getString("driverEmail"), rs.getString("driverName"));
                 driverMap.put(tripId, driver);
 
                 Stop stop = new Stop(rs.getInt("stopId"), rs.getDouble("longitude"), rs.getDouble("latitude"), rs.getTimestamp("departure").toInstant());
@@ -202,8 +191,8 @@ public class CarpoolRepository {
                 //Passengers are optional and could be null.
                 Object passengerId = rs.getObject("passengerId");
                 if (passengerId != null) {
-                    Passenger passenger = new Passenger(rs.getInt("passengerId"), rs.getString("passengerEmail"), rs.getString("passengerName"));
-                    Set<Passenger> passengers = passengersMap.computeIfAbsent(tripId, k -> new HashSet<>());
+                    Person passenger = new Person(rs.getInt("passengerId"), rs.getString("passengerEmail"), rs.getString("passengerName"));
+                    Set<Person> passengers = passengersMap.computeIfAbsent(tripId, k -> new HashSet<>());
                     passengers.add(passenger);
                 }
             }

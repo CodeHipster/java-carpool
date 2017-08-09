@@ -1,8 +1,5 @@
 package thijs.oostdam.carpool.handlers.dto;
 
-import thijs.oostdam.carpool.domain.Driver;
-import thijs.oostdam.carpool.domain.Passenger;
-import thijs.oostdam.carpool.domain.Stop;
 import thijs.oostdam.carpool.domain.interfaces.IDriver;
 import thijs.oostdam.carpool.domain.interfaces.IPassenger;
 import thijs.oostdam.carpool.domain.interfaces.IStop;
@@ -10,7 +7,6 @@ import thijs.oostdam.carpool.domain.interfaces.ITrip;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**

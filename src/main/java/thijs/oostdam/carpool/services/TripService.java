@@ -32,15 +32,15 @@ public class TripService {
      * @return an instantiated domain object.
      */
     public Trip createTrip(ITrip iTrip) {
-        Optional<Driver> driverOptional = carpoolRepository.getDriver(iTrip.driver().email());
+        Optional<Person> driverOptional = carpoolRepository.getPerson(iTrip.driver().email());
 
-        Driver driver;
+        Person driver;
         Collection<Trip> existingTrips;
         if(driverOptional.isPresent()){
             driver = driverOptional.get();
             existingTrips = carpoolRepository.searchTripsByDriverId(driver.id());
         }else{
-            driver = domainFactory.driver(iTrip.driver().email(), iTrip.driver().name());
+            driver = domainFactory.person(iTrip.driver().email(), iTrip.driver().name());
             existingTrips = new ArrayList<>();
         }
 
@@ -74,15 +74,15 @@ public class TripService {
         Trip trip = tripOptional.get();
 
         //check if passenger exists, if not create.
-        Optional<Passenger> optPassenger = carpoolRepository.getPassenger(newPassenger.email());
-        Passenger passenger;
+        Optional<Person> optPassenger = carpoolRepository.getPerson(newPassenger.email());
+        Person passenger;
         if(optPassenger.isPresent()){
             passenger = optPassenger.get();
             Collection<Trip> trips = carpoolRepository.searchTripsByPassengerId(passenger.id());
             trip.addPassenger(passenger, trips);
         }else{
             //create new person
-            passenger = domainFactory.passenger(newPassenger.email(), newPassenger.name());
+            passenger = domainFactory.person(newPassenger.email(), newPassenger.name());
             trip.addPassenger(passenger, new ArrayList<>());
         }
 
@@ -100,11 +100,9 @@ public class TripService {
         Stop stop = domainFactory.stop(newStop.latitude(), newStop.longitude(), newStop.departure());
 
         //If stop is before or after existing stops, check for overlap.
-
-
         Collection<Trip> existingTrips = new ArrayList<>();
         if(!OverlapComparator.inBetween(stop, trip.stops())){
-            for (Passenger p : trip.passengers()) {
+            for (Person p : trip.passengers()) {
                 existingTrips.addAll(carpoolRepository.searchTripsByPassengerId(p.id()));
             }
             //Filter out trip in question.

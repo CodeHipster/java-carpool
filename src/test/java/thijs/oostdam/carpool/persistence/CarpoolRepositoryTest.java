@@ -1,7 +1,6 @@
 package thijs.oostdam.carpool.persistence;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -50,8 +49,8 @@ class CarpoolRepositoryTest {
 
     @Test
     void storeTrip(){
-        //insert trip for driver 1
-        Driver driver1 = domainFactory.driver("email1", "name1");
+        //insert trip for person 1
+        Person driver1 = domainFactory.person("email1", "name1");
         Collection<Stop> stops = new ArrayList<>();
         stops.add(domainFactory.stop(1,1, Instant.now()));
         stops.add(domainFactory.stop(2,2, Instant.now()));
@@ -62,8 +61,8 @@ class CarpoolRepositoryTest {
         Collection<Trip> trips = fixture.searchTripsByDriverId(driver1.id());
         assertThat(trips.size()).isEqualTo(1);
 
-        //insert trip for driver 2
-        Driver driver2 = domainFactory.driver("email2", "name2");
+        //insert trip for person 2
+        Person driver2 = domainFactory.person("email2", "name2");
         stops = new ArrayList<>();
         stops.add(domainFactory.stop(3,3, Instant.now()));
         stops.add(domainFactory.stop(4,4, Instant.now()));
@@ -74,7 +73,7 @@ class CarpoolRepositoryTest {
         trips = fixture.searchTripsByDriverId(driver2.id());
         assertThat(trips.size()).isEqualTo(1);
 
-        //insert another trip for driver 2
+        //insert another trip for person 2
         stops = new ArrayList<>();
         stops.add(domainFactory.stop(5,5, Instant.now()));
         stops.add(domainFactory.stop(6,6, Instant.now()));
@@ -86,7 +85,7 @@ class CarpoolRepositoryTest {
         assertThat(trips.size()).isEqualTo(2);
 
         //insert the same trip again with different stops and a passenger.
-        trip3.addPassenger(domainFactory.passenger("passenger1", "passenger1"), new ArrayList<>());
+        trip3.addPassenger(domainFactory.person("passenger1", "passenger1"), new ArrayList<>());
         trip3.addStop(domainFactory.stop(1,1,Instant.now()),new ArrayList<>());
 
         fixture.storeTrip(trip3);

@@ -31,7 +31,7 @@ public class TripService {
      * @param iTrip, the interface for the domain.
      * @return an instantiated domain object.
      */
-    public Trip createTrip(ITrip iTrip) {
+    public void createTrip(ITrip iTrip) {
         Optional<Person> driverOptional = carpoolRepository.getPerson(iTrip.driver().email());
 
         Person driver;
@@ -54,7 +54,7 @@ public class TripService {
         Trip trip = domainFactory.trip(driver, stops, iTrip.maxPassengers(), existingTrips);
 
         carpoolRepository.storeTrip(trip);
-        return trip;
+        return;
     }
 
     public Collection<Trip> getTrips() {

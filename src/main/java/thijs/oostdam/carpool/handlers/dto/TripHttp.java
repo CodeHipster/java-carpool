@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 public class TripHttp implements ITrip{
     private int id;
     private int maxPassengers;
-    public PersonHttp driver = new PersonHttp();
-    public Collection<StopHttp> stops = new ArrayList<>();
+    private PersonHttp driver = new PersonHttp();
+    private Collection<StopHttp> stops = new ArrayList<>();
     private Collection<PersonHttp> passengers = new ArrayList<>();
 
     public TripHttp(ITrip output) {

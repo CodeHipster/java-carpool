@@ -29,8 +29,13 @@ class PassengerHandlerTest extends BasehandlerTest{
         InputStream inputStream = Resources.getResource("trip.json").openStream();
         HttpExchange postTrip = mockHttpExchange("POST", "", inputStream);
         tripHandler.handle(postTrip);
-        String response = postTrip.getResponseBody().toString();
-        TripHttp insertedTrip = gson.fromJson(response, TripHttp.class);
+
+        //get the trip
+        HttpExchange get = mockHttpExchange("GET", "http://localhost:8082/trips", new ByteArrayInputStream("".getBytes()));
+        tripsHandler.handle(get);
+        String response = get.getResponseBody().toString();
+        TripHttp[] insertedTrips = gson.fromJson(response, TripHttp[].class);
+        TripHttp insertedTrip = insertedTrips[0];
 
         //add a passenger
         String data = "{\n" +
@@ -49,14 +54,19 @@ class PassengerHandlerTest extends BasehandlerTest{
         assertEquals("", response);
 
         //fetch the trip
-        HttpExchange get = mockHttpExchange("GET", "http://localhost:8082/trips" + insertedTrip.id(), new ByteArrayInputStream("".getBytes()));
+        get = mockHttpExchange("GET", "http://localhost:8082/trips" + insertedTrip.id(), new ByteArrayInputStream("".getBytes()));
         tripsHandler.handle(get);
         response = get.getResponseBody().toString();
 
         //assert that passenger is in trip.
         TripHttp[] tripHttp = gson.fromJson(response, TripHttp[].class);
-        assertThat(tripHttp[0].passengers().size()).isEqualTo(1);
-        assertThat(tripHttp[0].passengers().stream().findFirst().get().email()).isEqualTo("email2@email.com");
-        assertThat(tripHttp[0].passengers().stream().findFirst().get().name()).isEqualTo("Some Name 2");
+        TripHttp tripWithPassenger = tripHttp[0];
+        assertThat(tripWithPassenger.passengers().size()).isEqualTo(2);
+        long count = tripWithPassenger.passengers().stream()
+                .filter(p -> p.email().equals("email2@email.com") && p.name().equals("Some Name 2")).count();
+        assertThat(count).isEqualTo(1);
+        count = tripWithPassenger.passengers().stream()
+                .filter(p -> p.email().equals("email@email.com") && p.name().equals("Firstname Lastname")).count();
+        assertThat(count).isEqualTo(1);
     }
 }

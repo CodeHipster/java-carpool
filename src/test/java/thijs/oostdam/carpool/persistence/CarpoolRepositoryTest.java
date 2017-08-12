@@ -93,7 +93,7 @@ class CarpoolRepositoryTest {
         trips = fixture.searchTripsByDriverId(driver2.id());
         assertThat(trips.size()).isEqualTo(2);
         Trip fetchedTrip3 = trips.stream().filter(trip -> trip.id() == trip3.id()).findFirst().get();
-        assertThat(fetchedTrip3.passengers().size()).isEqualTo(1);
+        assertThat(fetchedTrip3.passengers().size()).isEqualTo(2);
         assertThat(fetchedTrip3.stops().size()).isEqualTo(3);
     }
 
@@ -109,5 +109,4 @@ class CarpoolRepositoryTest {
         ds.setCreateDatabase("create");
         return ds;
     }
-
 }

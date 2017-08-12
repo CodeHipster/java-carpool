@@ -1,8 +1,8 @@
 {
   "maxPassengers":5 ,
   "driver" : {
-    "email" : "oostdam@gmail.com",
-    "name" : "Thijs Oostdam"
+    "email" : "email@email.com",
+    "name" : "Firstname Lastname"
   },
   "stops" : [
     {

@@ -40,8 +40,8 @@ public class TripHandler extends JsonHandler {
         String body = CharStreams.toString(new InputStreamReader(exchange.getRequestBody(), Charsets.UTF_8));
         LOG.info("trip to be added: \n{}", body);
         ITrip input = new Gson().fromJson(body, TripHttp.class);
-        ITrip output = tripService.createTrip(input);
-        return gson.toJson(new TripHttp(output));
+        tripService.createTrip(input);
+        return "";
     }
 
     @Override

@@ -4,11 +4,23 @@
     $(function () {
         refreshTrips();
 
-        //register buttons.
+        // register buttons.
         $("#addTrip").click(postNewTrip);
         $("#extraStopInput").click(extraStopInput);
         $("#listTrips").click(refreshTrips);
     });
+
+    var closeMessage = function(){
+        messageElement = $('#message');
+        messageElement.slideUp(function(){messageElement.text("");});
+    }
+
+    var showMessage = function(message){
+        messageElement = $('#message');
+        messageElement.text(message).slideDown().click(closeMessage);
+        // close automagically after 3 seconds.
+        setTimeout(closeMessage, 5000);
+    }
 
     // add another stop input block
     var extraStopInput = function(){
@@ -19,9 +31,7 @@
     // remove trips from page, download from server and add them to page
     var refreshTrips = function(){
         $.get("/trips", function (trips) {
-            //console.log("/trips data: ", data);
-            //var trips = JSON.parse(data);
-            //clear list
+            console.log("trips:", trips);
             $("#trips").empty();
             //add items to list
             trips.forEach(function(trip){
@@ -84,27 +94,47 @@
     };
 
     var removePassenger = function(tripId, passengerId){
-        $.delete("/trip/passenger?trip-id="+tripId+"&passenger-id="+ passengerId);
+        $.delete("/trip/passenger?trip-id="+tripId+"&passenger-id="+ passengerId)
+          .fail(function(jqXHR) {
+            var error = JSON.parse(jqXHR.responseText);
+            showMessage(error.message);
+          });
     }
 
     var removeStop = function(tripId, stopId){
-        $.delete("/trip/stop?trip-id="+tripId+"&stop-id=" + stopId);
+        $.delete("/trip/stop?trip-id="+tripId+"&stop-id=" + stopId)
+          .fail(function(jqXHR) {
+            var error = JSON.parse(jqXHR.responseText);
+            showMessage(error.message);
+          });
     };
 
     var deleteTrip = function(tripId){
-        $.delete("/trip?id="+tripId);
+        $.delete("/trip?id="+tripId)
+          .fail(function(jqXHR) {
+            var error = JSON.parse(jqXHR.responseText);
+            showMessage(error.message);
+          });
     };
 
     var postNewPassenger = function(trip){
         var postData = JSON.stringify(trip);
         console.log("posting new passenger: ", postData);
-        $.post("/trip/passenger", postData);
+        $.post("/trip/passenger", postData)
+          .fail(function(jqXHR) {
+            var error = JSON.parse(jqXHR.responseText);
+            showMessage(error.message);
+          });
     };
 
     var postNewStop = function(trip){
         var postData = JSON.stringify(trip);
         console.log("posting new stop: ", postData);
-        $.post("/trip/stop", postData);
+        $.post("/trip/stop", postData)
+          .fail(function(jqXHR) {
+            var error = JSON.parse(jqXHR.responseText);
+            showMessage(error.message);
+          });
     };
 
     // parse new trip input and send to server.

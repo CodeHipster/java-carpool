@@ -30,12 +30,13 @@ import java.text.MessageFormat;
 public abstract class JsonHandler implements HttpHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonHandler.class);
-    private static final String ERROR_TEMPLATE = "{\"error\":\"{0}\"}";
+    private static final String ERROR_TEMPLATE = "'{'\"message\":\"{0}\"'}'";
 
     @Override
     public final void handle(HttpExchange exchange) throws IOException{
         //OutputStream is incompatible with java7 try with resources.
         OutputStream os = exchange.getResponseBody();
+
         try {
             String response;
             switch(exchange.getRequestMethod()){
@@ -49,8 +50,8 @@ public abstract class JsonHandler implements HttpHandler {
             }else{
                 exchange.getResponseHeaders().add("Content-Type","application/json");
                 exchange.sendResponseHeaders(200, response.getBytes().length);
+                os.write(response.getBytes());
             }
-            os.write(response.getBytes());
         }catch (NotImplementedException e){
             LOG.warn("Unimplemented method({}) got called.", exchange.getRequestMethod());
             exchange.sendResponseHeaders(501, 0);

@@ -52,3 +52,9 @@ h1 {
     color: white;
     text-align: center;
 }
+
+#message {
+    position:fixed;
+    color: #D8000C;
+    background-color: #FFBABA;
+}

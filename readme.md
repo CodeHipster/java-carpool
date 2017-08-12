@@ -6,7 +6,6 @@
 - frontend:
   - styling
 - backend:
-  - fix response codes.
 
 ambitious:
   - write custom httpserver (instead of old com.sun.net.httpserver)

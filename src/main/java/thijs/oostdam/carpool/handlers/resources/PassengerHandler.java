@@ -21,7 +21,7 @@ import thijs.oostdam.carpool.services.TripService;
 /**
  * @author Thijs Oostdam on 10-7-17.
  */
-public class PassengerHandler implements HttpHandler {
+public class PassengerHandler extends JsonHandler {
     private static final Logger LOG = LoggerFactory.getLogger(PassengerHandler.class);
 
     private TripService tripService;
@@ -31,42 +31,30 @@ public class PassengerHandler implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange t) throws IOException {
-        try {
-            String response;
-            if (t.getRequestMethod().equals("POST")) {
-                String body = CharStreams.toString(new InputStreamReader(t.getRequestBody(), Charsets.UTF_8));
-                LOG.info("Passenger to be added: \n{}", body);
-                ITrip trip = new Gson().fromJson(body, TripHttp.class);
-                Preconditions.checkArgument(trip.passengers().size() < 2, "Only adding 1 passenger at a time is supported.");
-                tripService.addPassenger(trip.id(), trip.passengers().stream().findFirst()
-                        .orElseThrow(()-> new IllegalArgumentException("A passenger is required when adding a new passenger.")));
-                response = "";
-            }else if(t.getRequestMethod().equals("DELETE")){
-                List<NameValuePair> queryParams = URLEncodedUtils.parse(t.getRequestURI(), Charsets.UTF_8.name());
-                NameValuePair tripId = queryParams
-                        .stream()
-                        .filter(q -> q.getName().equalsIgnoreCase("trip-id"))
-                        .findFirst().orElseThrow(() -> new IllegalArgumentException("query param 'trip-id' is required for DELETE method."));
+    public String post(HttpExchange exchange) throws IOException{
+        String body = CharStreams.toString(new InputStreamReader(exchange.getRequestBody(), Charsets.UTF_8));
+        LOG.info("Passenger to be added: \n{}", body);
+        ITrip trip = new Gson().fromJson(body, TripHttp.class);
+        Preconditions.checkArgument(trip.passengers().size() < 2, "Only adding 1 passenger at a time is supported.");
+        tripService.addPassenger(trip.id(), trip.passengers().stream().findFirst()
+                .orElseThrow(()-> new IllegalArgumentException("A passenger is required when adding a new passenger.")));
+        return "";
+    }
 
-                NameValuePair passengerId = queryParams
-                        .stream()
-                        .filter(q -> q.getName().equalsIgnoreCase("passenger-id"))
-                        .findFirst().orElseThrow(() -> new IllegalArgumentException("query param 'passenger-id' is required for DELETE method."));
+    @Override
+    public String delete(HttpExchange exchange){
+        List<NameValuePair> queryParams = URLEncodedUtils.parse(exchange.getRequestURI(), Charsets.UTF_8.name());
+        NameValuePair tripId = queryParams
+                .stream()
+                .filter(q -> q.getName().equalsIgnoreCase("trip-id"))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("query param 'trip-id' is required for DELETE method."));
 
-                tripService.removePassenger(Integer.parseInt(tripId.getValue()),Integer.parseInt(passengerId.getValue()));
-                response = "";
-                //return 204?
-            } else {
-                response = "we not know your method " + t.getRequestMethod();
-            }
-            OutputStream os = t.getResponseBody();
-            t.getResponseHeaders().add("Content-Type","application/json");
-            t.sendResponseHeaders(200, response.getBytes().length);
-            os.write(response.getBytes());
-            os.close();
-        } catch (Exception e) {
-            LOG.error("something went wrong when creating a trip.", e);
-        }
+        NameValuePair passengerId = queryParams
+                .stream()
+                .filter(q -> q.getName().equalsIgnoreCase("passenger-id"))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("query param 'passenger-id' is required for DELETE method."));
+
+        tripService.removePassenger(Integer.parseInt(tripId.getValue()),Integer.parseInt(passengerId.getValue()));
+        return "";
     }
 }

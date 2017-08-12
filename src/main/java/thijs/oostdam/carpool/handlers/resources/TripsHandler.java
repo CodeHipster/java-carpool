@@ -17,33 +17,20 @@ import thijs.oostdam.carpool.services.TripService;
 /**
  * @author Thijs Oostdam on 10-7-17.
  */
-public class TripsHandler implements HttpHandler {
+public class TripsHandler extends JsonHandler {
     private static final Logger LOG = LoggerFactory.getLogger(TripsHandler.class);
 
     private TripService tripService;
+    private static final Gson gson = new Gson();
 
     public TripsHandler(TripService tripService){
         this.tripService = tripService;
     }
 
     @Override
-    public void handle(HttpExchange t) throws IOException {
-        try {
-            String response;
-            if (t.getRequestMethod().equals("GET")) {
-                Collection<Trip> trips = tripService.getTrips();
-                Collection<TripHttp> output = trips.stream().map(TripHttp::new).collect(Collectors.toList());
-                response = new Gson().toJson(output);
-            } else {
-                response = "we not know your method " + t.getRequestMethod();
-            }
-            OutputStream os = t.getResponseBody();
-            t.getResponseHeaders().add("Content-Type","application/json");
-            t.sendResponseHeaders(200, response.getBytes().length);
-            os.write(response.getBytes());
-            os.close();
-        } catch (Exception e) {
-            LOG.error("something went wrong when creating a trip.", e);
-        }
+    public String get(HttpExchange exchange) throws IOException{
+        Collection<Trip> trips = tripService.getTrips();
+        Collection<TripHttp> output = trips.stream().map(TripHttp::new).collect(Collectors.toList());
+        return gson.toJson(output);
     }
 }

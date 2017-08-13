@@ -32,7 +32,7 @@
     var refreshTrips = function(){
         $.get("/trips", function (trips) {
             console.log("trips:", trips);
-            $("#trips").empty();
+            $("#tripList .row").remove();
             //add items to list
             trips.forEach(function(trip){
                 var htmlTrip = $("#tripTemplate").clone();
@@ -88,7 +88,7 @@
                 $(".deleteTrip", htmlTrip).click(function(){
                     deleteTrip(trip.id);
                 });
-                $("#trips").append(htmlTrip);
+                $("#tripList").append(htmlTrip);
             });
         });
     };
@@ -141,14 +141,14 @@
     var postNewTrip = function () {
         var trip = {
             driver: {
-                email: $("#trip .email").val(),
-                name: $("#trip .name").val()
+                email: $("#newTrip .email").val(),
+                name: $("#newTrip .name").val()
             },
-            maxPassengers: $("#trip .maxPassengers").val(),
+            maxPassengers: $("#newTrip .maxPassengers").val(),
             stops: []
         };
 
-        $("#trip .stops .stop").each(function (index) {
+        $("#newTrip .stops .stop").each(function (index) {
             console.log(index + ": " + $(this).text());
             var stop = {
                 latitude: $(".latitude", this).val(),

@@ -181,5 +181,35 @@
             return _ajax_request(url, data, callback, type, 'DELETE');
         }
     });
-
 })(); //IIFE
+
+
+function initAutocomplete() {
+
+    document.querySelectorAll('.address-input').forEach(function(node){
+    console.log("creating autocomplete for node", node)
+        var autocomplete = new google.maps.places.Autocomplete(
+              (node),
+              {types: ['geocode']});
+
+        function fillInLocation() {
+            console.log(arguments);
+            var place = autocomplete.getPlace();
+            console.log(place);
+
+            if (!place.geometry) {
+                // User entered the name of a Place that was not suggested and
+                // pressed the Enter key, or the Place Details request failed.
+                console.log("No details available for input: '" + place.name + "'");
+                return;
+            }
+
+            node.parentNode.querySelector(".latitude").value = place.geometry.location.lat();
+            node.parentNode.querySelector(".longitude").value = place.geometry.location.lng();
+            console.log(place.geometry.location.lat());
+            console.log(place.geometry.location.lng());
+        }
+
+        autocomplete.addListener('place_changed', fillInLocation);
+    });
+}

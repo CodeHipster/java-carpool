@@ -5,11 +5,18 @@
     align-items: flex-start;
 }
 
-.flex-box{
+.trip-section{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
+}
+
+.new-trip-section{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .container {

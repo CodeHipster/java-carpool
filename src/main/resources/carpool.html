@@ -8,6 +8,8 @@
             integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
             crossorigin="anonymous"></script>
     <script src="carpool.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxrrybSvnnHZfKp4EK2CmFkGQhCOZ1BxE&libraries=places&callback=initAutocomplete"
+            async defer></script>
 </head>
 <body>
 
@@ -17,8 +19,8 @@
     <h1>EBPI CARPOOL</h1>
 </header>
 
-<div class="page-wrap">
-    <!--new trip-->
+<!--new trip-->
+<div class="new-trip-section">
     <div id="newTrip" class="flex-box container">
         <div class="info flex-item">
             <label>name</label> <br> <input class="name"> <br>
@@ -29,11 +31,13 @@
 
         <div class="stops flex-item">
             <div class="stop">
+                <label>address:</label> <br> <input class="address-input" > <br>
                 <label>latitude</label> <br> <input class="latitude" type="number"> <br>
                 <label>longitude</label> <br> <input class="longitude" type="number"> <br>
                 <label>departure</label> <br> <input class="departure" type="datetime-local"> <br>
             </div>
             <div class="stop">
+                <label>address:</label> <br> <input class="address-input"> <br>
                 <label>latitude</label> <br> <input class="latitude" type="number"> <br>
                 <label>longitude</label> <br> <input class="longitude" type="number"> <br>
                 <label>departure</label> <br> <input class="departure" type="datetime-local"> <br>
@@ -43,11 +47,11 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!--all trips-->
-    <button id="listTrips">refresh trips</button>
-    <div id="tripList" class="flex-box">
-    </div>
+<!--all trips-->
+<button id="listTrips">refresh trips</button>
+<div id="tripList" class="trip-section">
 </div>
 <!--templates to be used, should be hidden-->
 <div id="templates" hidden>
@@ -67,6 +71,7 @@
         </div>
         <div class="stops flex-item">
             <div>
+                <label>address:</label> <br> <input class="address-input" > <br>
                 <label>latitude</label> <br> <input class="latitude" type="number"> <br>
                 <label>longitude</label> <br> <input class="longitude" type="number"> <br>
                 <label>departure</label> <br> <input class="departure" type="datetime-local"> <br>

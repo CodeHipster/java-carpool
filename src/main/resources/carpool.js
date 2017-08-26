@@ -32,9 +32,10 @@
     var refreshTrips = function(){
         $.get("/trips", function (trips) {
             console.log("trips:", trips);
-            $("#tripList .row").remove();
+            $("#tripList .trip").remove();
             //add items to list
             trips.forEach(function(trip){
+
                 var htmlTrip = $("#tripTemplate").clone();
                 htmlTrip.removeAttr('id');
                 $(".name", htmlTrip).text(trip.driver.name);
@@ -90,6 +91,8 @@
                 });
                 $("#tripList").append(htmlTrip);
             });
+            //add autocomplete to input fields.
+            document.querySelectorAll('.trip-section .address-input').forEach(configureAutocomplete);
         });
     };
 
@@ -183,33 +186,51 @@
     });
 })(); //IIFE
 
-
-function initAutocomplete() {
-
-    document.querySelectorAll('.address-input').forEach(function(node){
+function configureAutocomplete(node){
     console.log("creating autocomplete for node", node)
-        var autocomplete = new google.maps.places.Autocomplete(
-              (node),
-              {types: ['geocode']});
+    var autocomplete = new google.maps.places.Autocomplete(
+          (node),
+          {types: ['geocode']});
 
-        function fillInLocation() {
-            console.log(arguments);
-            var place = autocomplete.getPlace();
-            console.log(place);
+    function fillInLocation() {
+        console.log(arguments);
+        var place = autocomplete.getPlace();
+        console.log(place);
 
-            if (!place.geometry) {
-                // User entered the name of a Place that was not suggested and
-                // pressed the Enter key, or the Place Details request failed.
-                console.log("No details available for input: '" + place.name + "'");
-                return;
-            }
-
-            node.parentNode.querySelector(".latitude").value = place.geometry.location.lat();
-            node.parentNode.querySelector(".longitude").value = place.geometry.location.lng();
-            console.log(place.geometry.location.lat());
-            console.log(place.geometry.location.lng());
+        if (!place.geometry) {
+            // User entered the name of a Place that was not suggested and
+            // pressed the Enter key, or the Place Details request failed.
+            console.log("No details available for input: '" + place.name + "'");
+            return;
         }
 
-        autocomplete.addListener('place_changed', fillInLocation);
-    });
+        node.parentNode.querySelector(".latitude").value = place.geometry.location.lat();
+        node.parentNode.querySelector(".longitude").value = place.geometry.location.lng();
+        console.log(place.geometry.location.lat());
+        console.log(place.geometry.location.lng());
+
+        //create the map
+        var params = encodeQueryData(
+        {
+        'markers': 'color:green|label:G|'+place.geometry.location.lat() + ',' + place.geometry.location.lng(),
+        'size':'300x300',
+        'zoom':'15',
+        'maptype': 'roadmap',
+        'key':'AIzaSyBxrrybSvnnHZfKp4EK2CmFkGQhCOZ1BxE'
+        });
+        node.parentNode.parentNode.querySelector(".map").src="//maps.googleapis.com/maps/api/staticmap?" + params;
+    }
+
+    autocomplete.addListener('place_changed', fillInLocation);
+};
+
+function initAutocomplete() {
+    document.querySelectorAll('.new-trip-section .address-input').forEach(configureAutocomplete);
+}
+
+function encodeQueryData(data) {
+   let ret = [];
+   for (let d in data)
+     ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+   return ret.join('&');
 }

@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,7 +42,7 @@ public abstract class JsonHandler implements HttpHandler {
                 case "POST": response = post(exchange); break;
                 case "GET": response = get(exchange); break;
                 case "DELETE": response = delete(exchange); break;
-                default: throw new NotImplementedException();
+                default: throw new UnsupportedOperationException();
             }
             if(Strings.isNullOrEmpty(response)){
                 exchange.sendResponseHeaders(204, response.getBytes().length);
@@ -52,7 +51,7 @@ public abstract class JsonHandler implements HttpHandler {
                 exchange.sendResponseHeaders(200, response.getBytes().length);
                 os.write(response.getBytes());
             }
-        }catch (NotImplementedException e){
+        }catch (UnsupportedOperationException e){
             LOG.warn("Unimplemented method({}) got called.", exchange.getRequestMethod());
             exchange.sendResponseHeaders(501, 0);
         }catch (Exception e) {
@@ -65,7 +64,7 @@ public abstract class JsonHandler implements HttpHandler {
         }
     }
 
-    protected String get(HttpExchange exchange)throws IOException{throw new NotImplementedException();}
-    protected String post(HttpExchange exchange)throws IOException{throw new NotImplementedException();}
-    protected String delete(HttpExchange exchange)throws IOException{throw new NotImplementedException();}
+    protected String get(HttpExchange exchange)throws IOException{throw new UnsupportedOperationException();}
+    protected String post(HttpExchange exchange)throws IOException{throw new UnsupportedOperationException();}
+    protected String delete(HttpExchange exchange)throws IOException{throw new UnsupportedOperationException();}
 }

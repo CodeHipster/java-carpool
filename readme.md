@@ -4,8 +4,7 @@
 - features:
   - login and user management
 - frontend:
-  - show map of stops.
-  - refactor frontend, use some user interface library.
+  - implement Vue    
   - styling
 - backend:
 

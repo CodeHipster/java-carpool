@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/carpool.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script src="carpool.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxrrybSvnnHZfKp4EK2CmFkGQhCOZ1BxE&libraries=places&callback=initAutocomplete"
+            async defer></script>
+</head>
+<body>
+
+<div id="message" hidden></div>
+
+<header>
+    <h1>CARPOOL</h1>
+</header>
+
+<!--new trip-->
+<div class="new-trip-section">
+    <div id="newTrip" class="flex-box container">
+        <div class="info flex-item">
+            <label>name</label> <br> <input class="name"> <br>
+            <label>email</label> <br> <input class="email"> <br>
+            <label>max. passengers</label> <br> <input class="maxPassengers" type="number"> <br>
+            <button id="addTrip">add trip</button>
+        </div>
+
+        <div class="stops flex-box">
+            <img class="map" border="0">
+            <div class="stop">
+                <label>address:</label> <br> <input class="address-input"> <br>
+                <label>latitude</label> <br> <input class="latitude" type="number"> <br>
+                <label>longitude</label> <br> <input class="longitude" type="number"> <br>
+                <label>departure</label> <br> <input class="departure" type="datetime-local"> <br>
+            </div>
+            <div class="stop">
+                <label>address:</label> <br> <input class="address-input"> <br>
+                <label>latitude</label> <br> <input class="latitude" type="number"> <br>
+                <label>longitude</label> <br> <input class="longitude" type="number"> <br>
+                <label>departure</label> <br> <input class="departure" type="datetime-local"> <br>
+            </div>
+            <div>
+                <button id="extraStopInput">extra stop</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--all trips-->
+<button id="listTrips">refresh trips</button>
+<div id="tripList" class="trip-section">
+</div>
+<!--templates to be used, should be hidden-->
+<div id="templates" hidden>
+    <div id="stopInputTemplate">
+        <div class="stop">
+            <label>latitude</label> <br> <input class="latitude" type="number"> <br>
+            <label>longitude</label> <br> <input class="longitude" type="number"> <br>
+            <label>departure</label> <br> <input class="departure" type="datetime-local"> <br>
+        </div>
+    </div>
+    <div id="tripTemplate" class="trip flex-box container">
+        <div class="info flex-item">
+            name: <span class="name"></span> <br>
+            email: <span class="email"></span> <br>
+            max. passengers: <span class="maxPassengers"></span> <br>
+            <button class="deleteTrip">delete trip</button>
+        </div>
+        <div class="stops flex-item">
+            <img class="map" border="0">
+            <div>
+                <label>address:</label> <br> <input class="address-input"> <br>
+                <label>latitude</label> <br> <input class="latitude" type="number"> <br>
+                <label>longitude</label> <br> <input class="longitude" type="number"> <br>
+                <label>departure</label> <br> <input class="departure" type="datetime-local"> <br>
+                <button class="addStop">add stop</button>
+            </div>
+        </div>
+        <div class="passengers flex-item">
+            <div>
+                <label>name</label> <br> <input class="name"> <br>
+                <label>email</label> <br> <input class="email"> <br>
+                <button class="addPassenger">add passenger</button>
+            </div>
+        </div>
+    </div>
+    <div id="stopTemplate">
+        <div class="stop">
+            latitude: <span class="latitude"></span> <br>
+            longitude: <span class="longitude"></span> <br>
+            departure: <span class="departure"></span> <br>
+            <button class="removeStop">remove</button>
+        </div>
+    </div>
+    <div id="passengerTemplate">
+        <div class="passenger">
+            name: <span class="name"></span> <br>
+            email: <span class="email"></span> <br>
+            <button class="removePassenger">remove</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

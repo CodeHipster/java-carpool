@@ -1,236 +1,230 @@
-(function () {//IIFE
 
-    // initialize
-    $(function () {
-        refreshTrips();
+Vue.component('google-places-auto-complete', {
+    template: `<input v-model="place">`,
+    data: function () {
+        return {place:'', latitude:'', longitude:''}
+    },
+    props:['eventBus'],
+    created() {
+        this.eventBus.$on('clearInput', () => {this.place = ''});
+    },
+    mounted: function(){
+        //why do i have to attach it to the this object?
+        this.autocomplete = new google.maps.places.Autocomplete(
+            (this.$el),
+            {types: ['geocode']});
 
-        // register buttons.
-        $("#addTrip").click(postNewTrip);
-        $("#extraStopInput").click(extraStopInput);
-        $("#listTrips").click(refreshTrips);
-    });
-
-    var closeMessage = function(){
-        messageElement = $('#message');
-        messageElement.slideUp(function(){messageElement.text("");});
+        this.autocomplete.addListener('place_changed', () => {
+            let place = this.autocomplete.getPlace();
+            this.$emit('updated', place);
+        })
     }
+})
 
-    var showMessage = function(message){
-        messageElement = $('#message');
-        messageElement.text(message).slideDown().click(closeMessage);
-        // close automagically after 3 seconds.
-        setTimeout(closeMessage, 5000);
-    }
-
-    // add another stop input block
-    var extraStopInput = function(){
-        var newStopInput = $('#stopInputTemplate .stop').clone();
-        $(newStopInput).insertAfter('#trip .stops .stop:last');
-    };
-
-    // remove trips from page, download from server and add them to page
-    var refreshTrips = function(){
-        $.get("/trips", function (trips) {
-            console.log("trips:", trips);
-            $("#tripList .trip").remove();
-            //add items to list
-            trips.forEach(function(trip){
-
-                var htmlTrip = $("#tripTemplate").clone();
-                htmlTrip.removeAttr('id');
-                $(".name", htmlTrip).text(trip.driver.name);
-                $(".email", htmlTrip).text(trip.driver.email);
-                $(".maxPassengers", htmlTrip).text(trip.maxPassengers);
-                trip.stops.forEach(function(stop){
-                    console.log("stop: ", stop);
-                    var newStop = $("#stopTemplate .stop").clone();
-                    $(".latitude", newStop).text(stop.latitude);
-                    $(".longitude", newStop).text(stop.longitude);
-                    $(".departure", newStop).text(new Date(stop.departure).toLocaleString());
-                    //wire remove button
-                    $(".removeStop", newStop).click(function(){
-                        removeStop(trip.id,stop.id);
-                    });
-                    $(".stops", htmlTrip).prepend(newStop);
-                });
-                trip.passengers.forEach(function(passenger){
-                    console.log("passenger: ", passenger);
-                    var newPassenger = $("#passengerTemplate .passenger").clone();
-                    $(".name", newPassenger).text(passenger.name);
-                    $(".email", newPassenger).text(passenger.email);
-                    //wire remove button
-                    $(".removePassenger", newPassenger).click(function(){
-                        removePassenger(trip.id, passenger.id);
-                    });
-                    $(".passengers", htmlTrip).prepend(newPassenger);
-                });
-                //wire buttons
-                $(".addPassenger", htmlTrip).click(function(){
-                    var data = {
-                        id: trip.id,
-                        passengers: [{
-                            name: $(this).siblings(".name").val(),
-                            email: $(this).siblings(".email").val()
-                        }]
-                    };
-                    postNewPassenger(data);
-                });
-                $(".addStop", htmlTrip).click(function(){
-                    var data = {
-                        id: trip.id,
-                        stops: [{
-                            latitude: $(this).siblings(".latitude").val(),
-                            longitude: $(this).siblings(".longitude").val(),
-                            departure: new Date($(this).siblings(".departure").val()).toISOString()
-                        }]
-                    };
-                    postNewStop(data);
-                });
-                $(".deleteTrip", htmlTrip).click(function(){
-                    deleteTrip(trip.id);
-                });
-                $("#tripList").append(htmlTrip);
-            });
-            //add autocomplete to input fields.
-            document.querySelectorAll('.trip-section .address-input').forEach(configureAutocomplete);
-        });
-    };
-
-    var removePassenger = function(tripId, passengerId){
-        $.delete("/trip/passenger?trip-id="+tripId+"&passenger-id="+ passengerId)
-          .fail(function(jqXHR) {
-            var error = JSON.parse(jqXHR.responseText);
-            showMessage(error.message);
-          });
-    }
-
-    var removeStop = function(tripId, stopId){
-        $.delete("/trip/stop?trip-id="+tripId+"&stop-id=" + stopId)
-          .fail(function(jqXHR) {
-            var error = JSON.parse(jqXHR.responseText);
-            showMessage(error.message);
-          });
-    };
-
-    var deleteTrip = function(tripId){
-        $.delete("/trip?id="+tripId)
-          .fail(function(jqXHR) {
-            var error = JSON.parse(jqXHR.responseText);
-            showMessage(error.message);
-          });
-    };
-
-    var postNewPassenger = function(trip){
-        var postData = JSON.stringify(trip);
-        console.log("posting new passenger: ", postData);
-        $.post("/trip/passenger", postData)
-          .fail(function(jqXHR) {
-            var error = JSON.parse(jqXHR.responseText);
-            showMessage(error.message);
-          });
-    };
-
-    var postNewStop = function(trip){
-        var postData = JSON.stringify(trip);
-        console.log("posting new stop: ", postData);
-        $.post("/trip/stop", postData)
-          .fail(function(jqXHR) {
-            var error = JSON.parse(jqXHR.responseText);
-            showMessage(error.message);
-          });
-    };
-
-    // parse new trip input and send to server.
-    var postNewTrip = function () {
-        var trip = {
-            driver: {
-                email: $("#newTrip .email").val(),
-                name: $("#newTrip .name").val()
-            },
-            maxPassengers: $("#newTrip .maxPassengers").val(),
-            stops: []
-        };
-
-        $("#newTrip .stops .stop").each(function (index) {
-            console.log(index + ": " + $(this).text());
-            var stop = {
-                latitude: $(".latitude", this).val(),
-                longitude: $(".longitude", this).val(),
-                departure: new Date($(".departure", this).val()).toISOString()
-            };
-            trip.stops.push(stop);
-        });
-
-        $.post("/trip", JSON.stringify(trip));
-    };
-
-    /* Extend jQuery with function for DELETE requests. */
-    function _ajax_request(url, data, callback, type, method) {
-        if (jQuery.isFunction(data)) {
-            callback = data;
-            data = {};
+Vue.component('location-input',{
+    template:`
+<div>
+    <google-places-auto-complete v-if="automatic" :eventBus="childBus" v-on:updated="procesAutocompleteInput($event)"></google-places-auto-complete>
+    <div v-else>
+        <label>latitude</label>
+        <input v-model="latitude" type="number" step="any">
+        <label>longitude</label>
+        <input v-model="longitude" type="number" step="any">
+    </div>
+    <button v-if="automatic" v-on:click="switchInput()">manual</button>
+    <button v-else v-on:click="switchInput()">auto-complete</button>
+    <button v-on:click="close()">X</button>
+</div>`,
+    data: function(){
+        return{
+            automatic:true,
+            latitude:'',
+            longitude:'',
+            childBus: new Vue()}
+    },
+    watch:{
+        latitude:function(){
+            //input debounce method for lat long
+            this.checkManualInput()
+        },
+        longitude:function(){
+            this.checkManualInput()
         }
-        return jQuery.ajax({
-            type: method,
-            url: url,
-            data: data,
-            success: callback,
-            dataType: type
-            });
+    },
+    methods:{
+        switchInput(){this.automatic = !this.automatic},
+        close: function(){this.$emit('close')},
+        procesAutocompleteInput: function(place){
+            if('geometry' in place){
+                coordinates = {
+                    latitude: place.geometry.location.lat(),
+                    longitude:place.geometry.location.lng()
+                }
+                this.$emit('updated', coordinates);
+                this.latitude = ''
+                this.longitude = ''
+            }
+        },
+        checkManualInput: _.debounce(function(){
+            //if both are filled in, call update and clear input
+            if(this.latitude && this.longitude){
+                coordinates = {latitude: this.latitude, longitude: this.longitude}
+                this.$emit('updated', coordinates);
+                this.childBus.$emit("clearInput")
+            }
+        },500)
     }
-
-    jQuery.extend({
-        delete: function(url, data, callback, type) {
-            return _ajax_request(url, data, callback, type, 'DELETE');
-        }
-    });
-})(); //IIFE
-
-function configureAutocomplete(node){
-    console.log("creating autocomplete for node", node)
-    var autocomplete = new google.maps.places.Autocomplete(
-          (node),
-          {types: ['geocode']});
-
-    function fillInLocation() {
-        console.log(arguments);
-        var place = autocomplete.getPlace();
-        console.log(place);
-
-        if (!place.geometry) {
-            // User entered the name of a Place that was not suggested and
-            // pressed the Enter key, or the Place Details request failed.
-            console.log("No details available for input: '" + place.name + "'");
-            return;
-        }
-
-        node.parentNode.querySelector(".latitude").value = place.geometry.location.lat();
-        node.parentNode.querySelector(".longitude").value = place.geometry.location.lng();
-        console.log(place.geometry.location.lat());
-        console.log(place.geometry.location.lng());
-
-        //create the map
-        var params = encodeQueryData(
-        {
-        'markers': 'color:green|label:G|'+place.geometry.location.lat() + ',' + place.geometry.location.lng(),
-        'size':'300x300',
-        'zoom':'15',
-        'maptype': 'roadmap',
-        'key':'AIzaSyBxrrybSvnnHZfKp4EK2CmFkGQhCOZ1BxE'
-        });
-        node.parentNode.parentNode.querySelector(".map").src="//maps.googleapis.com/maps/api/staticmap?" + params;
-    }
-
-    autocomplete.addListener('place_changed', fillInLocation);
-};
-
-function initAutocomplete() {
-    document.querySelectorAll('.new-trip-section .address-input').forEach(configureAutocomplete);
-}
+})
 
 function encodeQueryData(data) {
-   let ret = [];
-   for (let d in data)
-     ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
-   return ret.join('&');
+    let parameterString = [];
+    for (let value in data){
+        if(Array.isArray(data[value])){
+            data[value].forEach(function(param){
+                parameterString.push(encodeURIComponent(value) + '=' + encodeURIComponent(param));
+            })
+        }else{
+            parameterString.push(encodeURIComponent(value) + '=' + encodeURIComponent(data[value]));
+        }
+    }
+    return parameterString.join('&');
 }
+
+Vue.component('google-places-image', {
+    template:`
+        <div id="map">
+            <img v-bind:src="imageSrc">
+        </div>`,
+    props: ['places'],
+    computed:{
+        imageSrc: function(){
+            //create the map
+            var queryData = {
+                'size':'300x300',
+                'maptype': 'roadmap',
+                'key':'AIzaSyBxrrybSvnnHZfKp4EK2CmFkGQhCOZ1BxE'}
+            placesToRender = this.places
+            if(placesToRender != null){
+                placesToRender = this.places.filter(function(e){
+                    if(e.latitude && e.longitude) return true
+                })
+            }
+            if(placesToRender == null || placesToRender.length == 0){
+                queryData['zoom'] = '1'
+            }else{
+                let markers = []
+                queryData['markers'] = placesToRender.map(function(place, index, arr){
+                    label = index
+                    if(label == 0) label = 'S'
+                    else if(label == arr.length-1) label = 'D'
+                    return 'color:green|label:'+ label +'|'+ place.latitude + ',' + place.longitude
+                })
+                let locations = placesToRender.map(function(place){
+                    return "" + place.latitude +"," + place.longitude
+                })
+                queryData['path'] = "color:0x0000ff|weight:5|" + locations.join('|')
+            }
+
+            var params = encodeQueryData(queryData);
+            let url = "https://maps.googleapis.com/maps/api/staticmap?" + params;
+            return  url;
+        }
+    }
+})
+
+Vue.component('edit-stops',{
+    template:`
+<div>
+    <draggable v-model="places" @end="notify">
+        <location-input
+                v-for="place in places"
+                :key="place.id"
+                v-on:updated="updateLocation($event, place.id)"
+                v-on:close="removePlace(place.id)"
+                class="item"></location-input>
+        <button slot="footer" v-on:click="addPlace()">Add extra stop</button>
+    </draggable>
+    <google-places-image :places="places"></google-places-image>
+</div>
+`,
+    data: function(){
+        return {
+            places: [],
+            nextId: 1
+        }
+    },
+    methods:{
+        addPlace: function(place){
+            if(!place){
+                place = {}
+            }
+            if(!place.id){
+                place.id = this.nextId
+                this.nextId += 1
+            }
+            this.places.push(place)
+        },
+        updateLocation: function(coordinates, id){
+            rePlace = {latitude: coordinates.latitude, longitude: coordinates.longitude, id:id}
+            index = this.places.findIndex(function(e){
+                if(e.id === id) return true
+            })
+            //what if we finds no index?
+            Vue.set(this.places, index, rePlace)
+            this.notify()
+        },
+        removePlace:function(id){
+            this.places = this.places.filter(function(place){
+                if(place.id != id) return true
+                else return false
+            })
+        },
+        notify:function(){
+            coordinateList = this.places.map(function(place){
+                return{latitude: place.latitude, longitude: place.longitude}
+            })
+            //todo: only update when all places are valid coordinates.
+            this.$emit("updated", coordinateList)
+        }
+    },
+    mounted: function() {
+        this.addPlace({})
+        this.addPlace({})
+    }
+})
+
+Vue.component("new-trip",{
+    template:`
+<div>
+     <div>
+        <label>name</label> <br> <input v-model="info.name"> <br>
+        <label>email</label> <br> <input v-model="info.email"> <br>
+        <label>max. passengers</label> <br> <input v-model="info.max_passengers" type="number"> <br>
+        <label>departure</label> <br> <input class="departure" type="datetime-local"> <br>
+    </div>  
+    <edit-stops @updated="update"/>
+    <button @click="postTrips">post trip</button>
+</div>
+    `,
+    data:function(){
+        return{
+            info:{},
+            stops:[]
+        }
+    },
+    methods:{
+        postTrips(){
+            console.log("posting trip to server :-)", this.stops)
+            //verify input
+        },
+        update(stops){
+            console.log("updating stops", stops)
+            this.stops = stops;
+        }
+    }
+})
+
+
+var app = new Vue({
+    el: '#app'
+})

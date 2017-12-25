@@ -232,8 +232,10 @@ Vue.component("trip",{
     </div>  
     <div style="display: flex; flex-direction: row">
         <google-places-image :places="trip.stops"></google-places-image>
-        <div v-for="stop in trip.stops" style="display: flex; flex-direction: column">
-            {{stop.latitude}} {{stop.longitude}}
+        <div style="display: flex; flex-direction: column">
+            <div v-for="stop in trip.stops" >
+            latitude: {{stop.latitude}} longitude: {{stop.longitude}}
+            </div>
         </div>
     </div>
 </div>`,

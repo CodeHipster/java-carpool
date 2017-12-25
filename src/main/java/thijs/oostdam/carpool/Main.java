@@ -21,7 +21,7 @@ public class Main {
 
         HttpServer server = Routing.configureRoutes(dataSource);
 
-        LOG.info("starting service");
+        LOG.info("starting service on port 8180");
         server.start();
     }
 }

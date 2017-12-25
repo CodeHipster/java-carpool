@@ -23,17 +23,17 @@ Vue.component('google-places-auto-complete', {
 
 Vue.component('location-input',{
     template:`
-<div>
+<div style="display:flex; flex-flow:row wrap">
     <google-places-auto-complete v-if="automatic" :eventBus="childBus" v-on:updated="procesAutocompleteInput($event)"></google-places-auto-complete>
-    <div v-else>
-        <label>latitude</label>
-        <input v-model="latitude" type="number" step="any">
-        <label>longitude</label>
-        <input v-model="longitude" type="number" step="any">
+    <div style="display:flex; flex-flow:row wrap;" v-else>
+        <div><label>latitude</label><input v-model="latitude" type="number" step="any"></div>
+        <div><label>longitude</label><input v-model="longitude" type="number" step="any"></div>
     </div>
-    <button v-if="automatic" v-on:click="switchInput()">manual</button>
-    <button v-else v-on:click="switchInput()">auto-complete</button>
-    <button v-on:click="close()">X</button>
+    <div>
+        <button v-if="automatic" v-on:click="switchInput()">manual</button>
+        <button v-else v-on:click="switchInput()">auto-complete</button>
+        <button v-on:click="close()">X</button>
+    </div>
 </div>`,
     data: function(){
         return{
@@ -91,10 +91,7 @@ function encodeQueryData(data) {
 }
 
 Vue.component('google-places-image', {
-    template:`
-        <div id="map">
-            <img v-bind:src="imageSrc">
-        </div>`,
+    template:`<div><img v-bind:src="imageSrc"></div>`,
     props: ['places'],
     computed:{
         imageSrc: function(){
@@ -134,14 +131,14 @@ Vue.component('google-places-image', {
 
 Vue.component('edit-stops',{
     template:`
-<div>
-    <draggable v-model="places" @end="notify">
+<div style="display: flex; flex-flow: row wrap">
+    <draggable style="display: flex; flex-direction: column" v-model="places" @end="notify">
         <location-input
+                style="display: flex; flex-direction: row"
                 v-for="place in places"
                 :key="place.id"
                 v-on:updated="updateLocation($event, place.id)"
-                v-on:close="removePlace(place.id)"
-                class="item"></location-input>
+                v-on:close="removePlace(place.id)"></location-input>
         <button slot="footer" v-on:click="addPlace()">Add extra stop</button>
     </draggable>
     <google-places-image :places="places"></google-places-image>
@@ -195,14 +192,14 @@ Vue.component('edit-stops',{
 
 Vue.component("new-trip",{
     template:`
-<div>
-     <div>
-        <label>name</label> <br> <input v-model="info.name"> <br>
-        <label>email</label> <br> <input v-model="info.email"> <br>
-        <label>max. passengers</label> <br> <input v-model="info.max_passengers" type="number"> <br>
-        <label>departure</label> <br> <input class="departure" type="datetime-local"> <br>
+<div style="display: flex; flex-direction: column">
+    <div style="display: flex; flex-flow:row wrap">
+        <div><label>name</label> <input v-model="info.name"></div>
+        <div><label>email</label> <input v-model="info.email"></div>
+        <div><label>max. passengers</label> <input style="width: 2em; " v-model="info.max_passengers" type="number"></div>
+        <div><label>departure</label> <input class="departure" type="datetime-local"></div>
     </div>  
-    <edit-stops @updated="update"/>
+    <edit-stops @updated="update"></edit-stops>
     <button @click="postTrips">post trip</button>
 </div>
     `,
@@ -224,6 +221,49 @@ Vue.component("new-trip",{
     }
 })
 
+Vue.component("trip",{
+    template:`
+<div style="display: flex; flex-direction: column">
+    <div style="display: flex; flex-flow:row wrap">
+        <div><label>name</label> <span>{{trip.info.name}}</span></div>
+        <div><label>email</label> <span>{{trip.info.email}}</span></div>
+        <div><label>max. passengers</label> <span>{{trip.info.max_passengers}}</span></div>
+        <div><label>departure</label> <span>{{trip.info.departure}}</span></div>
+    </div>  
+    <div style="display: flex; flex-direction: row">
+        <google-places-image :places="trip.stops"></google-places-image>
+        <div v-for="stop in trip.stops" style="display: flex; flex-direction: column">
+            {{stop.latitude}} {{stop.longitude}}
+        </div>
+    </div>
+</div>`,
+    props:["trip"]
+})
+
+Vue.component("trip-list", {
+    template: `<div><trip v-for="trip in trips" style="display: flex; flex-direction: column" :trip="trip"/></div>`,
+    data:function(){
+        return {
+            trips:[
+                {
+                    info:{name:"test1", email:"e@mail.com", max_passengers:3, departure:"2017-3-1"},
+                    stops:[
+                        {latitude:1, longitude:2},
+                        {latitude:3, longitude:4}
+                ]},
+                {
+                    info:{name:"test2", email:"e@mail.com", max_passengers:3, departure:"2017-3-1"},
+                    stops:[
+                        {latitude:1, longitude:2},
+                        {latitude:3, longitude:4}
+                ]}
+            ]
+        }
+    },
+    mounted: function () {
+        console.log("triplist mounted")
+    }
+})
 
 var app = new Vue({
     el: '#app'

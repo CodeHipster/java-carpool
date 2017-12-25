@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.10/vue.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.10/vue.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.10/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
     <!-- CDNJS :: Sortable (https://cdnjs.com/) -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.7.0/Sortable.min.js"></script>
@@ -11,8 +14,10 @@
     <script src="carpool.js" defer></script>
 
     <style>
-        .item {
+        * {
             border-style: solid;
+            border-width: thin;
+            margin: 3px;
         }
     </style>
 </head>
@@ -38,7 +43,8 @@
 
 
 <div id="app">
-    <new-trip/>
+    <new-trip></new-trip>
+    <trip-list></trip-list>
 </div>
 
 

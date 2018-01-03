@@ -92,12 +92,17 @@ function encodeQueryData(data) {
 
 Vue.component('google-places-image', {
     template:`<div><img v-bind:src="imageSrc"></div>`,
-    props: ['places'],
+    props: {
+        places:{},
+        size:{
+            default:"300x300"
+        }
+    },
     computed:{
         imageSrc: function(){
             //create the map
             var queryData = {
-                'size':'300x300',
+                'size':this.size,
                 'maptype': 'roadmap',
                 'key':'AIzaSyBxrrybSvnnHZfKp4EK2CmFkGQhCOZ1BxE'}
             placesToRender = this.places
@@ -192,31 +197,34 @@ Vue.component('edit-stops',{
 
 Vue.component("new-trip",{
     template:`
-<div style="display: flex; flex-direction: column">
-    <div style="display: flex; flex-flow:row wrap">
-        <div><label>name</label> <input v-model="info.name"></div>
-        <div><label>email</label> <input v-model="info.email"></div>
-        <div><label>max. passengers</label> <input style="width: 2em; " v-model="info.max_passengers" type="number"></div>
-        <div><label>departure</label> <input class="departure" type="datetime-local"></div>
-    </div>  
-    <edit-stops @updated="update"></edit-stops>
+<div style="display: flex; flex-flow: column">
+    <div style="display: flex; flex-flow: row wrap">
+        <div style="display: flex; flex-flow:column">
+            <div><label>name</label> <input v-model="trip.info.name"></div>
+            <div><label>email</label> <input v-model="trip.info.email"></div>
+            <div><label>max. passengers</label> <input style="width: 2em;" v-model="trip.info.max_passengers" type="number"></div>
+            <div><label>departure</label> <input class="departure" type="datetime-local" v-model="trip.info.departure"></div>
+        </div>  
+        <edit-stops @updated="update"></edit-stops>
+    </div>
     <button @click="postTrips">post trip</button>
-</div>
-    `,
+</div>`,
     data:function(){
         return{
-            info:{},
-            stops:[]
+            trip: {
+                info: {},
+                stops: []
+            }
         }
     },
     methods:{
         postTrips(){
-            console.log("posting trip to server :-)", this.stops)
+            console.log("posting trip to server :-)", this)
             //verify input
         },
         update(stops){
             console.log("updating stops", stops)
-            this.stops = stops;
+            this.trip.stops = stops;
         }
     }
 })
@@ -224,33 +232,38 @@ Vue.component("new-trip",{
 Vue.component("trip",{
     template:`
 <div style="display: flex; flex-direction: column">
-    <div style="display: flex; flex-flow:row wrap">
-        <div><label>name</label> <span>{{trip.info.name}}</span></div>
-        <div><label>email</label> <span>{{trip.info.email}}</span></div>
-        <div><label>max. passengers</label> <span>{{trip.info.max_passengers}}</span></div>
+
+    <div style="display: flex; flex-flow:column">
         <div><label>departure</label> <span>{{trip.info.departure}}</span></div>
     </div>  
     <div style="display: flex; flex-direction: row">
-        <google-places-image :places="trip.stops"></google-places-image>
+        <google-places-image :places="trip.stops" size="100x100"></google-places-image>
         <div style="display: flex; flex-direction: column">
-            <div v-for="stop in trip.stops" >
-            latitude: {{stop.latitude}} longitude: {{stop.longitude}}
+            <div v-for="stop in trip.stops">
+                <div v-if="stop.name">{{stop.name}}</div>
+                <div v-else>latitude: {{stop.latitude}} longitude: {{stop.longitude}}</div>           
             </div>
         </div>
     </div>
+    <div style="display: flex; flex-flow:column wrap">
+        <div><label>name</label> <span>{{trip.info.name}}</span></div>
+        <div><label>email</label> <span>{{trip.info.email}}</span></div>
+        <div><label>max. passengers</label> <span>{{trip.info.max_passengers}}</span></div>
+    </div>  
+
 </div>`,
     props:["trip"]
 })
 
 Vue.component("trip-list", {
-    template: `<div><trip v-for="trip in trips" style="display: flex; flex-direction: column" :trip="trip"/></div>`,
+    template: `<div style="display: flex; flex-flow: row wrap"><trip v-for="trip in trips" :trip="trip"/></div>`,
     data:function(){
         return {
             trips:[
                 {
                     info:{name:"test1", email:"e@mail.com", max_passengers:3, departure:"2017-3-1"},
                     stops:[
-                        {latitude:1, longitude:2},
+                        {latitude:1, longitude:2, name:"home"},
                         {latitude:3, longitude:4}
                 ]},
                 {

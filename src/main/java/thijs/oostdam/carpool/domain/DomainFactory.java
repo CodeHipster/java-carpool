@@ -20,8 +20,8 @@ public class DomainFactory {
         return new Person(idGenerator.uniqueId(), email, name);
     }
 
-    public Stop stop(double latitude, double longitude, Instant departure){
-        return new Stop(idGenerator.uniqueId(), latitude,longitude, departure);
+    public Stop stop(double latitude, double longitude, String address, int index){
+        return new Stop(idGenerator.uniqueId(), latitude,longitude, address, index);
     }
 
     /**
@@ -36,13 +36,18 @@ public class DomainFactory {
      * @param driversTrips, all trips the driver participates in.
      * @return the newly created trip.
      */
-    public Trip trip(Person driver, Collection<Stop> stops, int maxPassengers, Collection<Trip> driversTrips){
-        if(OverlapComparator.overlap(stops, driversTrips)){
-            throw new IllegalArgumentException("New trip would overlap an existing trip for person: " + driver.email());
-        }
+    public Trip trip(Person driver, Collection<Stop> stops, int maxPassengers, Instant departure, Instant arrival, Collection<Trip> driversTrips){
+
         //Add the driver as passenger.
         ArrayList<Person> passengers = new ArrayList<>(maxPassengers);
         passengers.add(driver);
-        return new Trip(idGenerator.uniqueId(), driver, stops, passengers, maxPassengers);
+        Trip trip = new Trip(idGenerator.uniqueId(), driver, stops, passengers, maxPassengers, departure, arrival);
+
+        if(OverlapComparator.overlap(trip, driversTrips)){
+            //TODO: custom functional exceptions.
+            throw new IllegalArgumentException("New trip would overlap an existing trip for person: " + driver.email());
+        }
+
+        return trip;
     }
 }

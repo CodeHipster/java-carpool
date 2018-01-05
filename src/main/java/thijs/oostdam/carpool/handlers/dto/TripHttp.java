@@ -5,6 +5,7 @@ import thijs.oostdam.carpool.domain.interfaces.IPassenger;
 import thijs.oostdam.carpool.domain.interfaces.IStop;
 import thijs.oostdam.carpool.domain.interfaces.ITrip;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -22,14 +23,26 @@ public class TripHttp implements ITrip{
     private PersonHttp driver = new PersonHttp();
     private Collection<StopHttp> stops = new ArrayList<>();
     private Collection<PersonHttp> passengers = new ArrayList<>();
+    private String departure;
+    private String arrival;
 
-    public TripHttp(ITrip output) {
-        this.id = output.id();
-        this.maxPassengers = output.maxPassengers();
-        this.driver = new PersonHttp(output.driver());
-        this.stops = output.stops().stream().map(StopHttp::new).collect(Collectors.toList());
-        this.passengers = output.passengers().stream().map(PersonHttp::new).collect(Collectors.toList());
+    public TripHttp(ITrip trip) {
+        this.id = trip.id();
+        this.maxPassengers = trip.maxPassengers();
+        this.driver = new PersonHttp(trip.driver());
+        this.stops = trip.stops().stream().map(StopHttp::new).collect(Collectors.toList());
+        this.passengers = trip.passengers().stream().map(PersonHttp::new).collect(Collectors.toList());
+        this.departure = trip.departure().toString();
+        this.arrival = trip.arrival().toString();
     }
+
+    @Override
+    public Instant departure() {
+        return Instant.parse(departure);
+    }
+
+    @Override
+    public Instant arrival() { return Instant.parse(arrival);}
 
     @Override
     public int id() {
@@ -55,4 +68,5 @@ public class TripHttp implements ITrip{
     public int maxPassengers() {
         return maxPassengers;
     }
+
 }

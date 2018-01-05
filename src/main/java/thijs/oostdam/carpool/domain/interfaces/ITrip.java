@@ -1,5 +1,6 @@
 package thijs.oostdam.carpool.domain.interfaces;
 
+import java.time.Instant;
 import java.util.Collection;
 
 /**
@@ -15,4 +16,8 @@ public interface ITrip {
     Collection<? extends IPerson> passengers();
 
     int maxPassengers();
+
+    Instant departure();
+
+    Instant arrival();
 }

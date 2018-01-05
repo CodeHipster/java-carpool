@@ -12,23 +12,19 @@ public class StopHttp implements IStop{
     private int id;
     private double latitude;
     private double longitude;
-    public String departure;
+    public String address;
+    public int index;
 
     public StopHttp(IStop iStop) {
         this.id = iStop.id();
-        this.departure = iStop.departure().toString();
         this.latitude = iStop.latitude();
         this.longitude = iStop.longitude();
+        this.address = iStop.address();
     }
 
     @Override
     public int id() {
         return id;
-    }
-
-    @Override
-    public Instant departure() {
-        return Instant.parse(departure);
     }
 
     @Override
@@ -40,4 +36,10 @@ public class StopHttp implements IStop{
     public double longitude() {
         return longitude;
     }
+
+    @Override
+    public String address() {return address; }
+
+    @Override
+    public int index() {return index; }
 }

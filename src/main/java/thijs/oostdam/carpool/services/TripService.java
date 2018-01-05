@@ -48,10 +48,11 @@ public class TripService {
                 .map(iStop -> domainFactory.stop(
                         iStop.latitude(),
                         iStop.longitude(),
-                        iStop.departure()))
+                        iStop.address(),
+                        iStop.index()))
                 .collect(Collectors.toList());
 
-        Trip trip = domainFactory.trip(driver, stops, iTrip.maxPassengers(), existingTrips);
+        Trip trip = domainFactory.trip(driver, stops, iTrip.maxPassengers(), iTrip.departure(), iTrip.arrival(), existingTrips);
 
         carpoolRepository.storeTrip(trip);
         return;
@@ -97,19 +98,9 @@ public class TripService {
         Preconditions.checkArgument(tripOptional.isPresent(), "Trip(%s) must exist before adding a stop", tripId);
         Trip trip = tripOptional.get();
 
-        Stop stop = domainFactory.stop(newStop.latitude(), newStop.longitude(), newStop.departure());
+        Stop stop = domainFactory.stop(newStop.latitude(), newStop.longitude(), newStop.address(), newStop.index());
 
-        //If stop is before or after existing stops, check for overlap.
-        Collection<Trip> existingTrips = new ArrayList<>();
-        if(!OverlapComparator.inBetween(stop, trip.stops())){
-            for (Person p : trip.passengers()) {
-                existingTrips.addAll(carpoolRepository.searchTripsByPassengerId(p.id()));
-            }
-            //Filter out trip in question.
-            existingTrips = existingTrips.stream().filter(t -> t.id() != trip.id()).collect(Collectors.toList());
-        }
-
-        trip.addStop(stop, existingTrips);
+        trip.addStop(stop);
 
         carpoolRepository.storeTrip(trip);
     }

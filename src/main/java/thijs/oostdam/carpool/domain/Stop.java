@@ -1,42 +1,32 @@
 package thijs.oostdam.carpool.domain;
 
-import com.google.common.base.Preconditions;
-
-import java.time.Instant;
 import java.util.Objects;
 
-import org.jscience.geography.coordinates.LatLong;
 import thijs.oostdam.carpool.domain.interfaces.IStop;
 
 /**
  * A stop is a place where the trip stands still and passenger can enter or leave the trip.
- * <p>
- * The start of the trip as well as the destination is a stop.
  *
  * @author Thijs Oostdam on 5-7-17.
  */
 public class Stop implements IStop {
     private int id;
-    private Instant departure;
     private double latitude;
     private double longitude;
+    private String address;
+    private int index;
 
-    public Stop(int id, double latitude, double longitude, Instant departure) {
-        Preconditions.checkNotNull(departure, "The stop needs to end at some time.");
+    public Stop(int id, double latitude, double longitude, String address, int index) {
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.departure = departure;
+        this.address = address;
+        this.index = index;
     }
 
     @Override
     public int id() {
         return id;
-    }
-
-    @Override
-    public Instant departure() {
-        return departure;
     }
 
     @Override
@@ -48,6 +38,12 @@ public class Stop implements IStop {
     public double longitude() {
         return longitude;
     }
+
+    @Override
+    public String address() {return address; }
+
+    @Override
+    public int index(){ return index;}
 
     @Override
     public boolean equals(Object o) {

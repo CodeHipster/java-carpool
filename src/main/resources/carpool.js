@@ -37,7 +37,7 @@ Vue.component('location-input',{
 </div>`,
     data: function(){
         return{
-            automatic:true,
+            automatic:true, //TODO: change to inputMode
             latitude:'',
             longitude:'',
             childBus: new Vue()}
@@ -54,13 +54,15 @@ Vue.component('location-input',{
     methods:{
         switchInput(){this.automatic = !this.automatic},
         close: function(){this.$emit('close')},
-        procesAutocompleteInput: function(place){
-            if('geometry' in place){
-                coordinates = {
-                    latitude: place.geometry.location.lat(),
-                    longitude:place.geometry.location.lng()
+        procesAutocompleteInput: function(google_place){
+            if('geometry' in google_place){
+                console.log(google_place)
+                place = {
+                    address: google_place.formatted_address,
+                    latitude: google_place.geometry.location.lat(),
+                    longitude:google_place.geometry.location.lng()
                 }
-                this.$emit('updated', coordinates);
+                this.$emit('updated', place);
                 this.latitude = ''
                 this.longitude = ''
             }
@@ -166,8 +168,8 @@ Vue.component('edit-stops',{
             }
             this.places.push(place)
         },
-        updateLocation: function(coordinates, id){
-            rePlace = {latitude: coordinates.latitude, longitude: coordinates.longitude, id:id}
+        updateLocation: function(place, id){
+            rePlace = {latitude: place.latitude, longitude: place.longitude, address: place.address,id:id}
             index = this.places.findIndex(function(e){
                 if(e.id === id) return true
             })
@@ -182,11 +184,8 @@ Vue.component('edit-stops',{
             })
         },
         notify:function(){
-            coordinateList = this.places.map(function(place){
-                return{latitude: place.latitude, longitude: place.longitude}
-            })
             //todo: only update when all places are valid coordinates.
-            this.$emit("updated", coordinateList)
+            this.$emit("updated", this.places)
         }
     },
     mounted: function() {
@@ -200,10 +199,11 @@ Vue.component("new-trip",{
 <div style="display: flex; flex-flow: column">
     <div style="display: flex; flex-flow: row wrap">
         <div style="display: flex; flex-flow:column">
-            <div><label>name</label> <input v-model="trip.info.name"></div>
-            <div><label>email</label> <input v-model="trip.info.email"></div>
-            <div><label>max. passengers</label> <input style="width: 2em;" v-model="trip.info.max_passengers" type="number"></div>
-            <div><label>departure</label> <input class="departure" type="datetime-local" v-model="trip.info.departure"></div>
+            <div><label>name</label> <input v-model="trip.driver.name"></div>
+            <div><label>email</label> <input v-model="trip.driver.email"></div>
+            <div><label>max. passengers</label> <input style="width: 2em;" v-model="trip.max_passengers" type="number"></div>
+            <div><label>departure</label> <input type="datetime-local" v-model="trip.departure"></div>
+            <div><label>estimated arrival</label> <input type="datetime-local" v-model="trip.arrival"></div>
         </div>  
         <edit-stops @updated="update"></edit-stops>
     </div>
@@ -212,15 +212,31 @@ Vue.component("new-trip",{
     data:function(){
         return{
             trip: {
-                info: {},
-                stops: []
+                driver: {},
+                stops: [],
+                max_passengers:'',
+                departure:'',
+                arrival:''
             }
         }
     },
     methods:{
         postTrips(){
-            console.log("posting trip to server :-)", this)
-            //verify input
+            console.log("posting trip to server :-)", this.trip)
+
+            //TODO: verify input
+            fetch("/trip",
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify(this.trip)
+                })
+                .then(function(res){ console.log(res) })
+                .catch(function(res){ console.log(res) })
+
         },
         update(stops){
             console.log("updating stops", stops)
@@ -240,7 +256,7 @@ Vue.component("trip",{
         <google-places-image :places="trip.stops" size="100x100"></google-places-image>
         <div style="display: flex; flex-direction: column">
             <div v-for="stop in trip.stops">
-                <div v-if="stop.name">{{stop.name}}</div>
+                <div v-if="stop.address">{{stop.address}}</div>
                 <div v-else>latitude: {{stop.latitude}} longitude: {{stop.longitude}}</div>           
             </div>
         </div>
@@ -263,7 +279,7 @@ Vue.component("trip-list", {
                 {
                     info:{name:"test1", email:"e@mail.com", max_passengers:3, departure:"2017-3-1"},
                     stops:[
-                        {latitude:1, longitude:2, name:"home"},
+                        {latitude:1, longitude:2, address:"home"},
                         {latitude:3, longitude:4}
                 ]},
                 {

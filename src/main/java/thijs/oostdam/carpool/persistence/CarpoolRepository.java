@@ -3,6 +3,7 @@ package thijs.oostdam.carpool.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.*;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
@@ -128,16 +129,18 @@ public class CarpoolRepository {
 
         //TODO: should warn for anything besides count 0 or 1;
         if (count > 0) {
-            jdbcTemplate.update("UPDATE STOP SET DEPARTURE = ? , LATITUDE = ?, LONGITUDE = ? WHERE ID = ?"
-                    , Timestamp.from(stop.departure())
+            jdbcTemplate.update("UPDATE STOP SET INDEX = ?, ADDRESS = ? , LATITUDE = ?, LONGITUDE = ? WHERE ID = ?"
+                    , stop.index()
+                    , stop.address()
                     , stop.latitude()
                     , stop.longitude()
                     , stop.id());
         } else {
-            jdbcTemplate.update("INSERT INTO STOP (ID, TRIP_ID, DEPARTURE , LATITUDE, LONGITUDE ) VALUES (?, ?, ?, ?, ?)"
+            jdbcTemplate.update("INSERT INTO STOP (ID, TRIP_ID, INDEX, ADDRESS , LATITUDE, LONGITUDE ) VALUES (?, ?, ?, ?, ?)"
                     , stop.id()
                     , tripId
-                    , Timestamp.from(stop.departure())
+                    , stop.index()
+                    , stop.address()
                     , stop.latitude()
                     , stop.longitude());
         }
@@ -179,19 +182,35 @@ public class CarpoolRepository {
         public Collection<Trip> extractData(ResultSet rs) throws SQLException, DataAccessException {
             while (rs.next()) {
                 int tripId = rs.getInt("tripId");
-                TripDto trip = new TripDto(rs.getInt("tripId"), rs.getInt("maxPassengers"));
+                TripDto trip = new TripDto(
+                        rs.getInt("tripId"),
+                        rs.getInt("maxPassengers"),
+                        Instant.parse(rs.getString("departure")),
+                        Instant.parse(rs.getString("arrival")));
                 tripDtos.add(trip);
-                Person driver = new Person(rs.getInt("driverId"), rs.getString("driverEmail"), rs.getString("driverName"));
+
+                Person driver = new Person(
+                        rs.getInt("driverId"),
+                        rs.getString("driverEmail"),
+                        rs.getString("driverName"));
                 driverMap.put(tripId, driver);
 
-                Stop stop = new Stop(rs.getInt("stopId"), rs.getDouble("longitude"), rs.getDouble("latitude"), rs.getTimestamp("departure").toInstant());
+                Stop stop = new Stop(
+                        rs.getInt("stopId"),
+                        rs.getDouble("longitude"),
+                        rs.getDouble("latitude"),
+                        rs.getString("address"),
+                        rs.getInt("index"));
                 Set<Stop> stops = stopMap.computeIfAbsent(tripId, k -> new HashSet<>());
                 stops.add(stop);
 
                 //Passengers are optional and could be null.
                 Object passengerId = rs.getObject("passengerId");
                 if (passengerId != null) {
-                    Person passenger = new Person(rs.getInt("passengerId"), rs.getString("passengerEmail"), rs.getString("passengerName"));
+                    Person passenger = new Person(
+                            rs.getInt("passengerId"),
+                            rs.getString("passengerEmail"),
+                            rs.getString("passengerName"));
                     Set<Person> passengers = passengersMap.computeIfAbsent(tripId, k -> new HashSet<>());
                     passengers.add(passenger);
                 }
@@ -199,11 +218,13 @@ public class CarpoolRepository {
 
             for (TripDto tripDto : tripDtos) {
                 Trip trip = new Trip(
-                        tripDto.id
-                        , driverMap.get(tripDto.id)
-                        , stopMap.get(tripDto.id)
-                        , passengersMap.computeIfAbsent(tripDto.id, k -> new HashSet<>())
-                        , tripDto.maxPassengers);
+                        tripDto.id,
+                        driverMap.get(tripDto.id),
+                        stopMap.get(tripDto.id),
+                        passengersMap.computeIfAbsent(tripDto.id, k -> new HashSet<>()),
+                        tripDto.maxPassengers,
+                        tripDto.departure,
+                        tripDto.arrival);
                 trips.add(trip);
             }
 
@@ -217,10 +238,14 @@ public class CarpoolRepository {
     private static class TripDto {
         int id;
         int maxPassengers;
+        Instant departure;
+        Instant arrival;
 
-        TripDto(int id, int maxPassengers) {
+        TripDto(int id, int maxPassengers, Instant departure, Instant arrival) {
             this.id = id;
             this.maxPassengers = maxPassengers;
+            this.departure = departure;
+            this.arrival = arrival;
         }
 
         @Override

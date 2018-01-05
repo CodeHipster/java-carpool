@@ -8,9 +8,13 @@ import java.time.Instant;
 public interface IStop {
     int id();
 
-    Instant departure();
-
     double latitude();
 
     double longitude();
+
+    // human readable address
+    String address();
+
+    // which stop in the trip it is.
+    int index();
 }

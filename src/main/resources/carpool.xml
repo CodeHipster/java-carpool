@@ -11,10 +11,10 @@
       <column name="id" type="int">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="email" type="varchar(255)">
+      <column name="email" type="varchar(65,535)">
         <constraints unique="true" nullable="false"/>
       </column>
-      <column name="name" type="varchar(255)">
+      <column name="name" type="varchar(65,535)">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -41,6 +41,12 @@
       <column name="max_passengers" type="int">
         <constraints nullable="false"/>
       </column>
+      <column name="departure" type="DateTime">
+        <constraints nullable="true" />
+      </column>
+      <column name="arrival" type="DateTime">
+        <constraints nullable="true" />
+      </column>
     </createTable>
     <createIndex indexName="idx_trip"
                  tableName="trip"
@@ -64,14 +70,17 @@
       <column name="trip_id" type="int">
         <constraints nullable="false"/>
       </column>
+      <column name="index" type="int">
+        <constraints nullable="false" />
+      </column>
+      <column name="address" type="varchar(65,535)">
+        <constraints nullable="true" />
+      </column>
       <column name="longitude" type="double">
         <constraints nullable="false" />
       </column>
       <column name="latitude" type="double">
         <constraints nullable="false" />
-      </column>
-      <column name="departure" type="DateTime">
-        <constraints nullable="true" />
       </column>
     </createTable>
 

@@ -22,6 +22,8 @@ public class Trip implements ITrip {
     private Collection<Stop> stops;
     private Collection<Person> passengers;
     private int maxPassengers;
+    private Instant departure;
+    private Instant arrival;
 
     /**
      * Construct an existing trip.
@@ -30,7 +32,8 @@ public class Trip implements ITrip {
      * @param driver, the person driving the car
      * @param stops,  places where the trip will have a stop
      */
-    public Trip(int id, Person driver, Collection<Stop> stops, Collection<Person> passengers, int maxPassengers) {
+    public Trip(int id, Person driver, Collection<Stop> stops, Collection<Person> passengers, int maxPassengers, Instant departure, Instant arrival) {
+        //TODO: preconditions for arrival and departure.
         Preconditions.checkNotNull(driver, "A trip needs a driver.");
         Preconditions.checkNotNull(stops, "A trip like everything else has a beginning and end.");
         Preconditions.checkArgument(stops.size() >= 2, "A trip like everything else has a beginning and end. (meaning atleast 2 stops)");
@@ -42,6 +45,8 @@ public class Trip implements ITrip {
         this.driver = driver;
         this.stops = stops;
         this.passengers = passengers;
+        this.departure = departure;
+        this.arrival = arrival;
     }
 
     public void addPassenger(Person passenger, Collection<Trip> existingTrips) {
@@ -57,14 +62,15 @@ public class Trip implements ITrip {
     /**
      * Add a stop to the trip.
      * @param stop
-     * @param existingTrips for the passengers of this trip.
      */
-    public void addStop(Stop stop, Collection<Trip> existingTrips) {
-        //Check if new trip would cause overlap.
-        this.stops.add(stop);
-        if(OverlapComparator.overlap(this, existingTrips)){
-            throw new IllegalArgumentException("Stop would cause overlap for one of the participants.");
+    public void addStop(Stop stop) {
+        //check that there are no duplicate indices
+        Set<Integer> indices = stops.stream().map(s -> stop.index()).collect(Collectors.toSet());
+        indices.add(stop.index());
+        if(indices.size() == stops.size()){
+            throw new IllegalStateException("there already exists a stop with this index.");
         }
+        this.stops.add(stop);
     }
 
     public void removeStop(int stopId) {
@@ -100,6 +106,16 @@ public class Trip implements ITrip {
     @Override
     public int maxPassengers() {
         return maxPassengers;
+    }
+
+    @Override
+    public Instant departure() {
+        return departure;
+    }
+
+    @Override
+    public Instant arrival() {
+        return arrival;
     }
 
     @Override

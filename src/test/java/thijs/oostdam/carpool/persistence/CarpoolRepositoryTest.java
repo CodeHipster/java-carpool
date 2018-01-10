@@ -94,8 +94,8 @@ class CarpoolRepositoryTest {
                 driver2,
                 stops,
                 5,
-                Instant.now(),
                 Instant.now().plus(1, ChronoUnit.HOURS),
+                Instant.now().plus(2, ChronoUnit.HOURS),
                 fixture.searchTripsByDriverId(driver2.id()));
 
         fixture.storeTrip(trip3);

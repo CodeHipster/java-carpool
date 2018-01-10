@@ -20,6 +20,7 @@ public class StopHttp implements IStop{
         this.latitude = iStop.latitude();
         this.longitude = iStop.longitude();
         this.address = iStop.address();
+        this.index = iStop.index();
     }
 
     @Override

@@ -1,16 +1,20 @@
 {
-  "maxPassengers":5 ,
+  "maxPassengers":5,
+  "departure": "2010-01-01T13:00:00Z",
+  "arrival": "2010-01-01T14:00:00Z",
   "driver" : {
     "email" : "email@email.com",
     "name" : "Firstname Lastname"
   },
   "stops" : [
     {
-      "departure": "2010-01-01T12:00:00Z",
+      "index": "0",
+      "address": "whatup",
       "latitude" : 1.0,
       "longitude": 1.0
     },{
-      "departure": "2010-01-01T13:00:00Z",
+      "index": "1",
+      "address": "whatup2",
       "latitude" : 2.0,
       "longitude": 2.0
     }

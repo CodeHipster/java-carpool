@@ -26,7 +26,7 @@ class TripHandlerTest extends BasehandlerTest{
         TripsHandler tripsHandler = new TripsHandler(tripService);
 
         //test post
-        HttpExchange post = mockHttpExchange("POST", "", Resources.getResource("TripHandlerTest_handlePost.json").openStream());
+        HttpExchange post = mockHttpExchange("POST", "", Resources.getResource("trip.json").openStream());
         tripHandler.handle(post);
 
         //get the trip
@@ -41,9 +41,9 @@ class TripHandlerTest extends BasehandlerTest{
         assertThat(insertedTrip.driver().email()).isEqualTo("email@email.com");
         assertThat(insertedTrip.driver().name()).isEqualTo("Firstname Lastname");
         assertThat(insertedTrip.maxPassengers()).isEqualTo(5);
-        assertThat(insertedTrip.stops()).extracting("latitude", "longitude", "departure").containsExactlyInAnyOrder(
-                tuple(1.0,1.0,"2010-01-01T12:00:00Z"),
-                tuple(2.0,2.0,"2010-01-01T13:00:00Z"));
+        assertThat(insertedTrip.stops()).extracting("latitude", "longitude", "index", "address").containsExactlyInAnyOrder(
+                tuple(1.0,1.0,0, "whatup"),
+                tuple(2.0,2.0,1, "whatup2"));
         assertThat(insertedTrip.stops()).extracting("id").isNotIn(0);
         assertThat(insertedTrip.passengers()).extracting("email", "name").containsExactly(
                 tuple("email@email.com","Firstname Lastname"));
@@ -56,7 +56,7 @@ class TripHandlerTest extends BasehandlerTest{
         TripsHandler tripsHandler = new TripsHandler(tripService);
 
         //add trip
-        HttpExchange post = mockHttpExchange("POST", "", Resources.getResource("TripHandlerTest_handlePost.json").openStream());
+        HttpExchange post = mockHttpExchange("POST", "", Resources.getResource("trip.json").openStream());
         tripHandler.handle(post);
 
         //get the trip

@@ -11,10 +11,11 @@
       <column name="id" type="int">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="email" type="varchar(65,535)">
+      <column name="email" type="varchar(32672)">
+        <!--32672 max size for derby varchar-->
         <constraints unique="true" nullable="false"/>
       </column>
-      <column name="name" type="varchar(65,535)">
+      <column name="name" type="varchar(32672)">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -70,10 +71,10 @@
       <column name="trip_id" type="int">
         <constraints nullable="false"/>
       </column>
-      <column name="index" type="int">
+      <column name="indx" type="int">
         <constraints nullable="false" />
       </column>
-      <column name="address" type="varchar(65,535)">
+      <column name="address" type="varchar(32672)">
         <constraints nullable="true" />
       </column>
       <column name="longitude" type="double">

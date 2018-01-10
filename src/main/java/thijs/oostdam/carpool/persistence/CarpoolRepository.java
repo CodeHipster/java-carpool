@@ -27,8 +27,8 @@ public class CarpoolRepository {
     private static final Logger LOG = LoggerFactory.getLogger(CarpoolRepository.class);
     private JdbcTemplate jdbcTemplate;
     private TransactionTemplate transactionTemplate;
-    private String getTripsSql = "SELECT trip.id as tripId, trip.max_passengers as maxPassengers, person.id as driverId, person.email as driverEmail" +
-            ", person.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure" +
+    private String getTripsSql = "SELECT trip.id as tripId, trip.departure, trip.arrival, trip.max_passengers as maxPassengers, person.id as driverId, person.email as driverEmail" +
+            ", person.name as driverName, stop.id as stopId, stop.indx as stopIndex, stop.address, stop.longitude, stop.latitude" +
             ", passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName \n" +
             "FROM trip \n" +
             "INNER JOIN person as person ON trip.driver_id = person.id\n" +
@@ -112,15 +112,19 @@ public class CarpoolRepository {
 
         //TODO: should warn for anything besides count 0 or 1;
         if (count > 0) {
-            jdbcTemplate.update("UPDATE TRIP SET DRIVER_ID = ? , MAX_PASSENGERS = ? WHERE ID = ?"
+            jdbcTemplate.update("UPDATE TRIP SET DRIVER_ID = ? , MAX_PASSENGERS = ?, ARRIVAL = ?, DEPARTURE = ? WHERE ID = ?"
                     , trip.driver().id()
                     , trip.maxPassengers()
-                    , trip.id());
+                    , trip.id()
+                    , Timestamp.from(trip.arrival())
+                    , Timestamp.from(trip.departure()));
         } else {
-            jdbcTemplate.update("INSERT INTO TRIP (ID, DRIVER_ID , MAX_PASSENGERS ) VALUES (?, ?, ?)"
+            jdbcTemplate.update("INSERT INTO TRIP (ID, DRIVER_ID , MAX_PASSENGERS, ARRIVAL, DEPARTURE ) VALUES (?, ?, ?, ?, ?)"
                     , trip.id()
                     , trip.driver().id()
-                    , trip.maxPassengers());
+                    , trip.maxPassengers()
+                    , Timestamp.from(trip.arrival())
+                    , Timestamp.from(trip.departure()));
         }
     }
 
@@ -129,14 +133,14 @@ public class CarpoolRepository {
 
         //TODO: should warn for anything besides count 0 or 1;
         if (count > 0) {
-            jdbcTemplate.update("UPDATE STOP SET INDEX = ?, ADDRESS = ? , LATITUDE = ?, LONGITUDE = ? WHERE ID = ?"
+            jdbcTemplate.update("UPDATE STOP SET INDX = ?, ADDRESS = ? , LATITUDE = ?, LONGITUDE = ? WHERE ID = ?"
                     , stop.index()
                     , stop.address()
                     , stop.latitude()
                     , stop.longitude()
                     , stop.id());
         } else {
-            jdbcTemplate.update("INSERT INTO STOP (ID, TRIP_ID, INDEX, ADDRESS , LATITUDE, LONGITUDE ) VALUES (?, ?, ?, ?, ?)"
+            jdbcTemplate.update("INSERT INTO STOP (ID, TRIP_ID, INDX, ADDRESS , LATITUDE, LONGITUDE ) VALUES (?, ?, ?, ?, ?, ?)"
                     , stop.id()
                     , tripId
                     , stop.index()
@@ -185,8 +189,8 @@ public class CarpoolRepository {
                 TripDto trip = new TripDto(
                         rs.getInt("tripId"),
                         rs.getInt("maxPassengers"),
-                        Instant.parse(rs.getString("departure")),
-                        Instant.parse(rs.getString("arrival")));
+                        rs.getTimestamp("departure").toInstant(),
+                        rs.getTimestamp("arrival").toInstant());
                 tripDtos.add(trip);
 
                 Person driver = new Person(
@@ -200,7 +204,7 @@ public class CarpoolRepository {
                         rs.getDouble("longitude"),
                         rs.getDouble("latitude"),
                         rs.getString("address"),
-                        rs.getInt("index"));
+                        rs.getInt("stopIndex"));
                 Set<Stop> stops = stopMap.computeIfAbsent(tripId, k -> new HashSet<>());
                 stops.add(stop);
 

@@ -196,7 +196,8 @@ Vue.component('edit-stops',{
 
 Vue.component("new-trip",{
     template:`
-<div style="display: flex; flex-flow: column">
+<div style="display: flex; flex-flow: column; background-color:#FEF3DC">
+    <h2>Host new Trip</h2>
     <div style="display: flex; flex-flow: row wrap">
         <div style="display: flex; flex-flow:column">
             <div><label>name</label> <input v-model="trip.driver.name"></div>
@@ -272,7 +273,13 @@ Vue.component("trip",{
 })
 
 Vue.component("trip-list", {
-    template: `<div style="display: flex; flex-flow: row wrap"><trip v-for="trip in trips" :trip="trip"/></div>`,
+    template: `
+<div style="display: flex; flex-direction: column">
+    <h2>All trips</h2>
+    <div style="display: flex; flex-flow: row wrap">
+        <trip v-for="trip in trips" :trip="trip"/>
+    </div>
+</div>`,
     data:function(){
         return {
             trips:[

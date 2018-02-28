@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<!DOCTYPE html style="height: 100%;
+    margin: 0">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -13,22 +14,47 @@
     <!--We need to defer as the document has to be parsed for vue to work with it.-->
     <script src="carpool.js" defer></script>
 
+    <style>
+        :root {
+            --main-bg-color: #FDCD6D;
+            --secondary-bg-color: #FEF3DC;
+
+            --main-txt-color: #342609;
+            --secondary-txt-color: #9C6902;
+            --interaction-color:#FBA90A;
+        }
+    </style>
+
 </head>
 
-<body>
+<body style="height: 100%;
+    margin: 0">
 
-<h1 style="background-color: #FDCD6D;
-    padding-top: 0.67em;
-    padding-bottom: 0.67em;
-    margin-top: 0em;
-    margin-bottom: 0em;
-color:#342609;">CARPOOL</h1>
+<div style="
+    display: flex;
+    flex-flow: column;
+    height: 100%;">
 
-<div id="app">
-    <new-trip></new-trip>
-    <trip-list></trip-list>
+    <div style="background-color: var(--main-bg-color);
+        padding-top: 0.67em;
+        padding-bottom: 0.67em;
+        font-size: 2em;
+        font-weight: bold;
+        text-align: center;
+        flex: 0 1 auto;
+    color:var(--main-txt-color);">CARPOOL</div>
+
+    <div id="app" style="flex: 1 1 auto;
+        background-color: var(--secondary-bg-color);">
+        <new-trip></new-trip>
+        <trip-list></trip-list>
+    </div>
+
+    <div style="flex: 0 1 40px;
+        background-color: var(--main-bg-color);">
+        footer
+    </div>
 </div>
-
 
 </body>
 </html>

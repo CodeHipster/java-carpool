@@ -196,10 +196,10 @@ Vue.component('edit-stops',{
 
 Vue.component("new-trip",{
     template:`
-<div style="display: flex; flex-flow: column; background-color:#FEF3DC">
+<div style="display: flex; flex-flow: column;">
     <h2>Host new Trip</h2>
     <div style="display: flex; flex-flow: row wrap">
-        <div style="display: flex; flex-flow:column">
+        <div style="display: flex; flex-flow:column; flex-grow=2">
             <div><label>name</label> <input v-model="trip.driver.name"></div>
             <div><label>email</label> <input v-model="trip.driver.email"></div>
             <div><label>max. passengers</label> <input style="width: 2em;" v-model="trip.max_passengers" type="number"></div>
@@ -208,7 +208,9 @@ Vue.component("new-trip",{
         </div>  
         <edit-stops @updated="update"></edit-stops>
     </div>
-    <button @click="postTrips">post trip</button>
+    <div>
+        <button @click="postTrips">post trip</button>
+    </div>
 </div>`,
     data:function(){
         return{
@@ -274,7 +276,7 @@ Vue.component("trip",{
 
 Vue.component("trip-list", {
     template: `
-<div style="display: flex; flex-direction: column">
+<div style="display: flex; flex-direction: column"">
     <h2>All trips</h2>
     <div style="display: flex; flex-flow: row wrap">
         <trip v-for="trip in trips" :trip="trip"/>

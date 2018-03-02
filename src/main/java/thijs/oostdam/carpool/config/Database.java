@@ -1,4 +1,4 @@
-package thijs.oostdam.carpool.core.config;
+package thijs.oostdam.carpool.config;
 
 import liquibase.Contexts;
 import liquibase.LabelExpression;

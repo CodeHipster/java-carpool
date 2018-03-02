@@ -2,7 +2,7 @@ package thijs.oostdam.tools;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import thijs.oostdam.carpool.core.config.Database;
+import thijs.oostdam.carpool.config.Database;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;

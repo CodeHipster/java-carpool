@@ -1,4 +1,4 @@
-package thijs.oostdam.carpool.jwt.handlers;
+package thijs.oostdam.carpool.authentication;
 
 public class Login {
     public String email;

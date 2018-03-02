@@ -1,14 +1,16 @@
-package thijs.oostdam.carpool.core.domain;
+package thijs.oostdam.carpool.core.UnitTests;
 
-import org.assertj.core.api.Fail;
 import org.junit.jupiter.api.Test;
+import thijs.oostdam.carpool.core.domain.OverlapComparator;
+import thijs.oostdam.carpool.core.domain.Person;
+import thijs.oostdam.carpool.core.domain.Stop;
+import thijs.oostdam.carpool.core.domain.Trip;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class OverlapComparatorTest {
 

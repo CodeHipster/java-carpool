@@ -1,16 +1,15 @@
 package thijs.oostdam.carpool.core.persistence;
 
-import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import thijs.oostdam.carpool.core.domain.UniqueIdGenerator;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 /**
  * Class to generate unique id's

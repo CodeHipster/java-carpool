@@ -1,12 +1,11 @@
-package thijs.oostdam.carpool.core.persistence;
+package thijs.oostdam.carpool.core.IntegrationTests.persistence;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
-import thijs.oostdam.carpool.core.config.Database;
+import thijs.oostdam.carpool.config.Database;
+import thijs.oostdam.carpool.core.persistence.SQLUniqueIdGenerator;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;

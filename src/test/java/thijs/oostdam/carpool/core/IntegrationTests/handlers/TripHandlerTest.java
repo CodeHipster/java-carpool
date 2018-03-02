@@ -1,22 +1,25 @@
-package thijs.oostdam.carpool.core.handlers.resources;
+package thijs.oostdam.carpool.core.IntegrationTests.handlers;
 
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
+import org.junit.jupiter.api.Test;
+import thijs.oostdam.carpool.core.handlers.dto.TripHttp;
+import thijs.oostdam.carpool.core.handlers.resources.TripHandler;
+import thijs.oostdam.carpool.core.handlers.resources.TripsHandler;
+import thijs.oostdam.carpool.core.services.TripService;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.junit.jupiter.api.Test;
-import thijs.oostdam.carpool.core.handlers.dto.TripHttp;
-import thijs.oostdam.carpool.core.services.TripService;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 /**
  * @author Thijs Oostdam on 6-7-17.
  */
-class TripHandlerTest extends BasehandlerTest{
+class TripHandlerTest extends HandlerTestBase {
     private Gson gson = new Gson();
 
     @Test

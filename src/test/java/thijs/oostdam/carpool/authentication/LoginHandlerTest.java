@@ -1,9 +1,10 @@
-package thijs.oostdam.carpool.jwt.handlers;
+package thijs.oostdam.carpool.authentication;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import thijs.oostdam.carpool.authentication.handlers.LoginHandler;
 
 import java.io.*;
 import java.net.URI;
@@ -16,13 +17,16 @@ class LoginHandlerTest {
     @Test
     void handle() throws Exception{
 
-        LoginHandler loginHandler = new LoginHandler();
+        //TODO: test logging in and doing a request to the filter.
 
-        String initialString = "{email:\"test@test.com\", password:\"test\"}";
+        KeyPairProvider keyPairProvider = new KeyPairProvider();
+        LoginHandler loginHandler = new LoginHandler(keyPairProvider.getKeyPair().getPrivate());
 
-        InputStream targetStream = new ByteArrayInputStream(initialString.getBytes());
+        String body = "{email:\"test@test.com\", password:\"test\"}";
+
+        InputStream bodyStream = new ByteArrayInputStream(body.getBytes());
         //test post
-        HttpExchange post = mockHttpExchange("POST", "", targetStream,new Headers());
+        HttpExchange post = mockHttpExchange("POST", "", bodyStream,new Headers());
         loginHandler.handle(post);
     }
 

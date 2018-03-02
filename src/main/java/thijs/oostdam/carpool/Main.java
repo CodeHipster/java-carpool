@@ -3,8 +3,8 @@ package thijs.oostdam.carpool;
 import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thijs.oostdam.carpool.core.config.Database;
-import thijs.oostdam.carpool.core.config.Routing;
+import thijs.oostdam.carpool.config.Database;
+import thijs.oostdam.carpool.config.Routing;
 
 import javax.sql.DataSource;
 

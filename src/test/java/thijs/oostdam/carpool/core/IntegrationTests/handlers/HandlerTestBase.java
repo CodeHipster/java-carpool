@@ -1,7 +1,18 @@
-package thijs.oostdam.carpool.core.handlers.resources;
+package thijs.oostdam.carpool.core.IntegrationTests.handlers;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.mockito.Mockito;
+import org.springframework.jdbc.core.JdbcTemplate;
+import thijs.oostdam.carpool.config.Database;
+import thijs.oostdam.carpool.core.domain.DomainFactory;
+import thijs.oostdam.carpool.core.persistence.CarpoolRepository;
+import thijs.oostdam.carpool.core.persistence.SQLUniqueIdGenerator;
+
+import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,19 +21,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.UUID;
-import javax.sql.DataSource;
-import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.mockito.Mockito;
-import org.springframework.jdbc.core.JdbcTemplate;
-import thijs.oostdam.carpool.core.config.Database;
-import thijs.oostdam.carpool.core.domain.DomainFactory;
-import thijs.oostdam.carpool.core.persistence.CarpoolRepository;
-import thijs.oostdam.carpool.core.persistence.SQLUniqueIdGenerator;
+
 import static org.mockito.Mockito.when;
 
-public abstract class BasehandlerTest {
+public abstract class HandlerTestBase {
 
     protected static JdbcTemplate jdbcTemplate;
     protected static CarpoolRepository carpoolRepository;

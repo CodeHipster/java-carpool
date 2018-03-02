@@ -74,7 +74,7 @@ public abstract class JsonHandler<I,O> implements HttpHandler {
             }
         }catch (UnsupportedOperationException e){
             LOG.warn("Unimplemented method({}) got called.", exchange.getRequestMethod());
-            exchange.sendResponseHeaders(501, 0);
+            exchange.sendResponseHeaders(404, 0);
         }catch (Exception e) {
             LOG.error("Something went wrong: {}", e.getMessage(), e);
             String response = MessageFormat.format(ERROR_TEMPLATE, e.getMessage());

@@ -1,46 +1,75 @@
 package thijs.oostdam.carpool.jwt.handlers;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.crypto.MacProvider;
-import org.apache.http.NameValuePair;
+import com.google.common.base.Charsets;
+import com.google.gson.Gson;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thijs.oostdam.carpool.core.handlers.dto.TripHttp;
-import thijs.oostdam.carpool.core.handlers.resources.JsonHandler;
-import thijs.oostdam.carpool.core.handlers.resources.PassengerHandler;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.security.*;
+import java.text.MessageFormat;
+import java.util.Base64;
 
-public class LoginHandler extends JsonHandler<Login, Void>{
+public class LoginHandler implements HttpHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PassengerHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LoginHandler.class);
+    private static final String ERROR_TEMPLATE = "'{'\"message\":\"{0}\"'}'";
 
-    private SecretKey key;
-
-    public LoginHandler(){
-        super(TripHttp.class);
-        key = MacProvider.generateKey();
+    private static final KeyPair keyPair;
+    static {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(1024);
+            keyPair = keyGen.generateKeyPair();
+        }catch(NoSuchAlgorithmException e){
+            throw new RuntimeException();
+        }
     }
 
     @Override
-    public Void post(Login login, List<NameValuePair> queryParams) throws IOException {
+    public void handle(HttpExchange exchange) throws IOException {
+
+        InputStreamReader r = new InputStreamReader(exchange.getRequestBody(), Charsets.UTF_8);
+        Login login = new Gson().fromJson(r, Login.class);
+
         LOG.info("User({}) logging in.",login);
 
-        String sjwt = Jwts.builder()
-                .setSubject(login.email)
-                .setIssuedAt(Date.from(Instant.now()))
-                .setExpiration(Date.from(Instant.now().plus(7, ChronoUnit.DAYS)))
-                .signWith(SignatureAlgorithm.HS256, key)
-                .compact();
+        //OutputStream is incompatible with java7 try with resources.
+        OutputStream os = exchange.getResponseBody();
+        try {
+            //sign the email.
+            Signature sig = Signature.getInstance("SHA256withRSA");
+            sig.initSign(keyPair.getPrivate());
+            sig.update(login.email.getBytes("UTF8"));
+            byte[] signatureBytes = sig.sign();
+            String signature = Base64.getEncoder().encodeToString(signatureBytes);
+            String signedToken = Base64.getEncoder().encodeToString(login.email.getBytes("UTF8")) + "." + signature;
+            LOG.debug(signedToken);
 
-        //Set it in the header
+//            sig.initVerify(keyPair.getPublic());
+//            sig.update(login.email.getBytes());
+//            System.out.println(sig.verify(Base64.getDecoder().decode(signature)));
 
-        return null;
+            //Put it in the header
+            Headers responseHeaders = exchange.getResponseHeaders();
+            responseHeaders.set("signed-token", signedToken);
+            exchange.sendResponseHeaders(204,0);
+        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
+            throw new RuntimeException("There was a problem security problem.", e);
+        }catch (Exception e) {
+            LOG.error("Something went wrong: {}", e.getMessage(), e);
+            String response = MessageFormat.format(ERROR_TEMPLATE, e.getMessage());
+            exchange.sendResponseHeaders(500, response.getBytes().length);
+            os.write(response.getBytes());
+        } finally {
+            os.close();
+        }
+
+        return;
     }
 }

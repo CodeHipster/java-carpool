@@ -34,7 +34,7 @@ public abstract class HandlerTestBase {
     public static void beforeAll() throws SQLException {
 
         DataSource ds = createDatabase();
-        Database.applySchema(ds.getConnection());
+        Database.applySchema(ds.getConnection(),"core/core-db-schema.xml");
         jdbcTemplate = new JdbcTemplate(ds);
         carpoolRepository = new CarpoolRepository(ds);
         domainFactory = new DomainFactory(new SQLUniqueIdGenerator(ds));

@@ -2,8 +2,6 @@
 
 ###TODO:
 - user authentication
-    - email/password
-    - no cookies
-    - roles?
+    - store passwords in database
 - frontend: 
     - styling

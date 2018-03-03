@@ -14,7 +14,7 @@ import java.net.URL;
 public class HtmlHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange t) throws IOException {
-        URL resource = Resources.getResource("carpool.html");
+        URL resource = Resources.getResource("core/carpool.html");
         String response = Resources.toString(resource, Charsets.UTF_8);
         OutputStream os = t.getResponseBody();
         t.sendResponseHeaders(200,response.getBytes().length);

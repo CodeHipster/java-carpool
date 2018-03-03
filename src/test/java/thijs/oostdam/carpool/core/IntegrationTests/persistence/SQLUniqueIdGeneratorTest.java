@@ -20,11 +20,11 @@ class SQLUniqueIdGeneratorTest {
     public static void beforeAll() throws SQLException {
         EmbeddedDataSource ds = new EmbeddedDataSource();
         ds.setDatabaseName("memory:testDb");
-        ds.setUser("thijs");
-        ds.setPassword("oostdam");
+        ds.setUser("test");
+        ds.setPassword("test");
         ds.setCreateDatabase("create");
 
-        Database.applySchema(ds.getConnection());
+        Database.applySchema(ds.getConnection(),"core/core-db-schema.xml");
 
         dataSource = ds;
     }

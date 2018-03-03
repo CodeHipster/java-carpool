@@ -19,19 +19,28 @@ import java.sql.Connection;
 public class Database {
     private static final Logger LOG = LoggerFactory.getLogger(Database.class);
 
-    public static DataSource startDatabase() {
+    public static DataSource startCoreDatabase() {
         EmbeddedDataSource ds = new EmbeddedDataSource();
-        ds.setDatabaseName("carpoolDB");
-        ds.setUser("thijs");
-        ds.setPassword("oostdam");
+        ds.setDatabaseName("coreDB");
+        ds.setUser("test");
+        ds.setPassword("test");
         ds.setCreateDatabase("create");
         return ds;
     }
 
-    public static void applySchema(Connection connection) {
+    public static DataSource startAuthDatabase() {
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        ds.setDatabaseName("authenticationDB");
+        ds.setUser("test");
+        ds.setPassword("test");
+        ds.setCreateDatabase("create");
+        return ds;
+    }
+
+    public static void applySchema(Connection connection, String schema) {
         try {
             liquibase.database.Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
-            Liquibase liquibase = new liquibase.Liquibase("carpool.xml", new ClassLoaderResourceAccessor(), database);
+            Liquibase liquibase = new liquibase.Liquibase(schema, new ClassLoaderResourceAccessor(), database);
             liquibase.update(new Contexts(), new LabelExpression());
         } catch (Exception e) {
             LOG.error("Exception while trying to apply liquibase schema.",e);

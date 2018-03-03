@@ -14,7 +14,7 @@ import java.net.URL;
 public class JsHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange t) throws IOException {
-        URL resource = Resources.getResource("carpool.js");
+        URL resource = Resources.getResource("core/carpool.js");
         String response = Resources.toString(resource, Charsets.UTF_8);
         OutputStream os = t.getResponseBody();
         t.sendResponseHeaders(200,response.getBytes().length);

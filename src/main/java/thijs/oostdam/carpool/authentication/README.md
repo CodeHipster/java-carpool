@@ -22,3 +22,17 @@ the second part is the signature in base64 encoded format.
 As the saying goes: when it comes to security don't roll your own.
 The implementation is safe enough for a showcasing app, but don't use it for something that is dear to you :-) 
 (find a proper JWT implementation)
+
+
+all functionality
+- register with email and password
+    - which gives acces, but user should not be able to participate
+    - sends an email to user with a key to verify his email
+- verify key from email
+    - enables user to participate
+- reset password
+    changes password to a random value which is send to the user
+- change password
+    will change the password to the provided value
+- login 
+    user can login with email and password

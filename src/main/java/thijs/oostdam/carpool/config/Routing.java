@@ -1,8 +1,10 @@
 package thijs.oostdam.carpool.config;
 
 import com.sun.net.httpserver.HttpServer;
-import thijs.oostdam.carpool.authentication.KeyPairProvider;
+import thijs.oostdam.carpool.authentication.services.AuthenticationService;
+import thijs.oostdam.carpool.authentication.services.KeyPairProvider;
 import thijs.oostdam.carpool.authentication.handlers.LoginHandler;
+import thijs.oostdam.carpool.authentication.services.PasswordRepository;
 import thijs.oostdam.carpool.core.domain.DomainFactory;
 import thijs.oostdam.carpool.core.handlers.resources.PassengerHandler;
 import thijs.oostdam.carpool.core.handlers.resources.StopHandler;
@@ -27,14 +29,16 @@ public class Routing {
     public static HttpServer configureRoutes(DataSource dataSource){
 
         CarpoolRepository carpoolRepository = new CarpoolRepository(dataSource);
+        PasswordRepository passwordRepository = new PasswordRepository(dataSource);
         DomainFactory domainFactory = new DomainFactory(new SQLUniqueIdGenerator(dataSource));
         TripService tripService = new TripService(carpoolRepository, domainFactory);
         KeyPairProvider keyPairProvider = new KeyPairProvider();
+        AuthenticationService authenticationService = new AuthenticationService(keyPairProvider, passwordRepository);
 
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(8180), 0);
             server.createContext("/", new HtmlHandler());
-            server.createContext("/login", new LoginHandler(keyPairProvider.getKeyPair().getPrivate()));
+            server.createContext("/login", new LoginHandler(authenticationService));
             server.createContext("/core/carpool.js", new JsHandler());
             server.createContext("/carpool.css", new CssHandler());
             server.createContext("/trip", new TripHandler(tripService));

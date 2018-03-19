@@ -1,4 +1,4 @@
-package thijs.oostdam.carpool.authentication;
+package thijs.oostdam.carpool.authentication.services;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;

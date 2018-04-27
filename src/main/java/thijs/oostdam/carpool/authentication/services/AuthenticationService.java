@@ -1,5 +1,6 @@
 package thijs.oostdam.carpool.authentication.services;
 
+import com.google.common.base.Charsets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.primitives.Bytes;
@@ -7,13 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thijs.oostdam.carpool.authentication.domain.*;
 
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.text.MessageFormat;
+import java.security.*;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -29,40 +25,69 @@ public class AuthenticationService {
         this.repository = repository;
     }
 
-    public void register(Registration login){
+    //TODO: separation of concerns
+    public void register(Registration registration){
         //Check if user doesnt already have an account
+        Optional<PasswordHash> password = repository.getPassword(registration.email);
+        if(password.isPresent()){
+            throw new RuntimeException("user already exists.");
+        }
 
-        //Add user and password
-            //hash and salt
+        //calculate hash
+        //add salt to password
+        //calculate hash
+        SecureRandom random = new SecureRandom();
+        byte salt[] = new byte[4];
+        random.nextBytes(salt);
+
+        byte[] saltedPassword = Bytes.concat(registration.password.getBytes(), salt);
+        HashCode saltedPasswordHash = Hashing.sha256().hashBytes( saltedPassword );
+        PasswordHash passwordHash = new PasswordHash(saltedPasswordHash.asBytes(), salt);
+
+        repository.addPassword(registration.email, passwordHash);
 
         //generate verification code
+        byte[] code = new byte[7];
+        for(int i = 0; i < code.length; i++){
+            //https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block)
+            code[i] = (byte)(random.nextInt(26) +65); //No need to use secure random
+        }
+
+        String verificationCode = new String(code, Charsets.UTF_8);
+
+        //Store verification code in db
+        repository.addVerificationCode(new VerificationCode(registration.email, verificationCode));
 
         //email verification code
+
     }
 
-    public String validateToken(String token){
+
+    //test no header
+    //test empty header
+    //test no . in header
+    //test only . in header
+    public Email validateToken(String token){
         //get the part after the dot. which is the signature.
         //verify the part before the dot.
         String[] split = token.split(".");
         byte[] id = Base64.getDecoder().decode(split[0]);
         byte[] signature = Base64.getDecoder().decode(split[1]);
 
-        //OutputStream is incompatible with java7 try with resources.
-        OutputStream os = exchange.getResponseBody();
         try {
             Signature sig = null;
             sig = Signature.getInstance("SHA256withRSA");
             sig.initVerify(keyPairProvider.getKeyPair().getPublic());
             sig.update(id);
-            if(!sig.verify(signature)) throw new RuntimeException("Signature is not valid.");
-            exchange.setAttribute("id",new String(id,"utf-8"));
-            next.handle(exchange);
-        } catch (Exception e) {
+            if(sig.verify(signature)){
+                return new Email(new String(id,"utf-8"));
+            }
+            else{
+                throw new RuntimeException("Signature is not valid.");
+            }
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException | SignatureException e) {
             LOG.error("Something went wrong: {}", e.getMessage(), e);
-            byte[] response = MessageFormat.format(ERROR_TEMPLATE, e.getMessage()).getBytes();
-            exchange.sendResponseHeaders(500, response.length);
-            os.write(response);
-            os.close();
+            throw new RuntimeException("could not validate token",e);
         }
     }
 
@@ -99,10 +124,10 @@ public class AuthenticationService {
         try {
             Signature sig = Signature.getInstance("SHA256withRSA");
             sig.initSign(keyPairProvider.getKeyPair().getPrivate());
-            sig.update(login.email.getBytes("UTF8"));
+            sig.update(login.email.email.getBytes("UTF8"));
             byte[] signatureBytes = sig.sign();
             String signature = Base64.getEncoder().encodeToString(signatureBytes);
-            String signedToken = Base64.getEncoder().encodeToString(login.email.getBytes("UTF8")) + "." + signature;
+            String signedToken = Base64.getEncoder().encodeToString(login.email.email.getBytes("UTF8")) + "." + signature;
             LOG.debug(signedToken);
             return new LoginToken(signedToken);
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException | SignatureException e) {

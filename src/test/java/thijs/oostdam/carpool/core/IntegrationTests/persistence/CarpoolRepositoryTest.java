@@ -34,7 +34,7 @@ class CarpoolRepositoryTest {
         DataSource ds = createDatabase();
         jdbcTemplate = new JdbcTemplate(ds);
 
-        Database.applySchema(ds.getConnection(),"core/core-db-schema.xml");
+        Database.applySchema(ds,"core/core-db-schema.xml");
 
         domainFactory = new DomainFactory(new SQLUniqueIdGenerator(ds));
 

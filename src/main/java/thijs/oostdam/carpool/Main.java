@@ -3,6 +3,8 @@ package thijs.oostdam.carpool;
 import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
+import thijs.oostdam.carpool.config.CLIConfig;
 import thijs.oostdam.carpool.config.Database;
 import thijs.oostdam.carpool.config.Routing;
 
@@ -15,15 +17,21 @@ import javax.sql.DataSource;
 public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) throws Exception {
-        DataSource dataSourceCore = Database.startCoreDatabase();
-        DataSource dataSourceAuth = Database.startAuthDatabase();
-        Database.applySchema(dataSourceCore.getConnection(),"core/core-db-schema.xml");
-        Database.applySchema(dataSourceAuth.getConnection(),"authentication/authentication-db-schema.xml");
 
-        HttpServer server = Routing.configureRoutes(dataSourceCore);
+    public static void main(String[] args) throws Exception {
+
+        CLIConfig cliConfig = CommandLine.populateCommand(new CLIConfig(), args);
+
+        DataSource coreDataSource = Database.startCoreDatabase();
+        DataSource authDataSource = Database.startCoreDatabase();
+        Database.applySchema(coreDataSource,"core/core-db-schema.xml");
+        Database.applySchema(authDataSource,"authentication/authentication-db-schema.xml");
+
+        HttpServer server = Routing.configureRoutes(coreDataSource);
 
         LOG.info("starting services on port 8180");
         server.start();
+
+        LOG.info("closing main thread");
     }
 }

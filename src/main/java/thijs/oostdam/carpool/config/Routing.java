@@ -1,9 +1,9 @@
 package thijs.oostdam.carpool.config;
 
 import com.sun.net.httpserver.HttpServer;
+import thijs.oostdam.carpool.authentication.handlers.LoginHandler;
 import thijs.oostdam.carpool.authentication.services.AuthenticationService;
 import thijs.oostdam.carpool.authentication.services.KeyPairProvider;
-import thijs.oostdam.carpool.authentication.handlers.LoginHandler;
 import thijs.oostdam.carpool.authentication.services.PasswordRepository;
 import thijs.oostdam.carpool.core.domain.DomainFactory;
 import thijs.oostdam.carpool.core.handlers.resources.PassengerHandler;
@@ -49,5 +49,41 @@ public class Routing {
         } catch (IOException e) {
             throw new IllegalStateException("Could not start server", e);
         }
+
+
+//        try {
+//            //default value for backlog is 50
+//            HttpsServer server = HttpsServer.create(new InetSocketAddress(8180), 0);
+//            HttpsConfigurator httpsConfigurator = server.getHttpsConfigurator();
+//
+//            KeyStore ks = KeyStore.getInstance("JKS");
+//
+//            ks.load();
+//            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+//            kmf.init(ks, password);
+//
+//            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+//            tmf.init(ks);
+//
+//            SSLContext sslContext = SSLContext.getInstance("TLS");
+//            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+//            HttpsServer httpsServer = HttpsServer.create();
+//            httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext));
+//
+//
+//            httpsConfigurator.
+//            //todo set ssl config on server.
+//            server.createContext("/", new HtmlHandler());
+//            server.createContext("/login", new LoginHandler(authenticationService));
+//            server.createContext("/core/carpool.js", new JsHandler());
+//            server.createContext("/carpool.css", new CssHandler());
+//            server.createContext("/trip", new TripHandler(tripService));
+//            server.createContext("/trips", new TripsHandler(tripService));
+//            server.createContext("/trip/passenger", new PassengerHandler(tripService));
+//            server.createContext("/trip/stop", new StopHandler(tripService));
+//            return server;
+//        } catch (IOException e) {
+//            throw new IllegalStateException("Could not start server", e);
+//        }
     }
 }

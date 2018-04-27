@@ -1,11 +1,5 @@
 package thijs.oostdam.carpool.core.persistence;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.*;
-import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -19,6 +13,13 @@ import thijs.oostdam.carpool.core.domain.Trip;
 import thijs.oostdam.carpool.core.domain.interfaces.IPerson;
 import thijs.oostdam.carpool.core.domain.interfaces.IStop;
 import thijs.oostdam.carpool.core.domain.interfaces.ITrip;
+
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.*;
 
 /**
  * Created by Thijs on 14-7-2017.

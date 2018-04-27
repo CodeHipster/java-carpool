@@ -24,7 +24,7 @@ class SQLUniqueIdGeneratorTest {
         ds.setPassword("test");
         ds.setCreateDatabase("create");
 
-        Database.applySchema(ds.getConnection(),"core/core-db-schema.xml");
+        Database.applySchema(ds,"core/core-db-schema.xml");
 
         dataSource = ds;
     }

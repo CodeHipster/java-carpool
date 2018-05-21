@@ -1,15 +1,12 @@
 package thijs.oostdam.carpool.authentication.services;
 
 import com.google.common.hash.HashCode;
-import com.google.common.hash.Hashing;
-import com.google.common.primitives.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thijs.oostdam.carpool.authentication.domain.*;
 
 import java.security.SecureRandom;
 import java.util.Optional;
-import java.util.Random;
 
 public class AuthenticationService {
 
@@ -32,7 +29,6 @@ public class AuthenticationService {
 
     }
 
-    //TODO: separation of concerns
     public void register(Registration registration){
         //Check if user doesnt already have an account
         Optional<PasswordHash> password = repository.getPassword(registration.email);
@@ -80,18 +76,14 @@ public class AuthenticationService {
     public LoginToken login(Login login){
 
         //verify login
-        Optional<PasswordHash> storedPassword = repository.getPassword(login.email);
-        if(!storedPassword.isPresent()){
-            throw new RuntimeException("email not known.");
-        }
+        PasswordHash storedPassword = repository.getPassword(login.email)
+                .orElseThrow(() -> new RuntimeException("email not known."));
 
-        //verify password, add the salt and then compare to hash stored in db.
-        byte[] givenPassword = login.password.getBytes();
-        byte[] saltedGivenPassword = Bytes.concat(givenPassword, storedPassword.get().getSalt());
-        HashCode givenPasswordHash = Hashing.sha256().hashBytes( saltedGivenPassword );
+        //use the salt that belongs to the password.
+        PasswordHash passwordHash = passwordHasher.hashPassword(login.password, storedPassword.getSalt());
 
-        if(!givenPasswordHash.equals(HashCode.fromBytes(storedPassword.get().getHash()))){
-            throw new RuntimeException("Bad password.");
+        if(!passwordHash.equals(HashCode.fromBytes(storedPassword.getHash()))){
+            throw new RuntimeException("Incorrect password.");
         }
 
         //generate token
@@ -100,12 +92,7 @@ public class AuthenticationService {
 
     public void resetPassword(Email email){
         //generate new password
-        byte[] passwordBytes = new byte[8];
-        new Random().nextBytes(passwordBytes);
-        for(int i = 0 ; i < passwordBytes.length; i++){
-            passwordBytes[i] = (byte)(passwordBytes[i] % 26 + 65);
-        }
-        String password = new String(passwordBytes);
+        String password = codeGenerator.generateCode(8);
 
         Login login = new Login(email, password);
 
@@ -119,9 +106,24 @@ public class AuthenticationService {
     }
 
     public void changePassword(NewPassword newPassword){
-        //verify password
-        //change password
-        //hash and salt
+        verifyPassword(newPassword.email, newPassword.oldPassword);
+
+        PasswordHash passwordHash = passwordHasher.hashPassword(newPassword.newPassword);
+
+        repository.updatePassword(newPassword.email, passwordHash);
+    }
+
+    private void verifyPassword(Email email, String password){
+
+        PasswordHash storedPassword = repository.getPassword(email)
+                .orElseThrow(() -> new RuntimeException("email not known."));
+
+        //use the salt that belongs to the password.
+        PasswordHash passwordHash = passwordHasher.hashPassword(password, storedPassword.getSalt());
+
+        if(!passwordHash.equals(HashCode.fromBytes(storedPassword.getHash()))){
+            throw new RuntimeException("Incorrect password.");
+        }
     }
 }
 

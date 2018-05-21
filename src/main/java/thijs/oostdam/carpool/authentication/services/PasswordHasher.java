@@ -26,10 +26,14 @@ public class PasswordHasher {
     }
 
     public PasswordHash hashPassword(String password){
-
-        //add salt to password
         byte salt[] = new byte[4];
         random.nextBytes(salt);
+
+        return this.hashPassword(password, salt);
+    }
+
+    public PasswordHash hashPassword(String password, byte[] salt){
+        //add salt to password
         byte[] saltedPassword = Bytes.concat(password.getBytes(), salt);
 
         //calculate hash

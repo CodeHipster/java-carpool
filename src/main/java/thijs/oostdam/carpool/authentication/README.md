@@ -36,3 +36,5 @@ all functionality
     will change the password to the provided value
 - login 
     user can login with email and password
+- authenticated calls
+    user can do calls to routes requiring authentication with the token provide by the login.

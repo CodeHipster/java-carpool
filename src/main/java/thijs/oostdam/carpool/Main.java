@@ -17,7 +17,6 @@ import javax.sql.DataSource;
 public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-
     public static void main(String[] args) throws Exception {
 
         CLIConfig cliConfig = CommandLine.populateCommand(new CLIConfig(), args);

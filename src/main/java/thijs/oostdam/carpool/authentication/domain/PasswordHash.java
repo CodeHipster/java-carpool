@@ -6,6 +6,7 @@ public class PasswordHash {
     private final byte[] salt;
 
     public PasswordHash(byte[] hash, byte[] salt){
+
         this.saltedPasswordHash = hash;
         this.salt = salt;
     }

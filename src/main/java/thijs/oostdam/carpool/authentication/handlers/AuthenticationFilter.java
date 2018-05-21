@@ -4,7 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thijs.oostdam.carpool.authentication.domain.Email;
+import thijs.oostdam.carpool.authentication.domain.LoginToken;
 import thijs.oostdam.carpool.authentication.services.AuthenticationService;
 
 import java.io.IOException;
@@ -32,16 +32,16 @@ public class AuthenticationFilter implements HttpHandler{
         //OutputStream is incompatible with java7 try with resources.
         OutputStream os = exchange.getResponseBody();
         try {
-            Email email = service.validateToken(idToken);
-            exchange.setAttribute("email",email);
+            LoginToken token = service.validateToken(idToken);
+            exchange.setAttribute("email",token.email.email);
             next.handle(exchange);
         } catch (Exception e) {
+            //TODO: differentiate between user error and system error.
             LOG.error("Something went wrong: {}", e.getMessage(), e);
             byte[] response = MessageFormat.format(ERROR_TEMPLATE, e.getMessage()).getBytes();
             exchange.sendResponseHeaders(500, response.length);
             os.write(response);
             os.close();
         }
-
     }
 }

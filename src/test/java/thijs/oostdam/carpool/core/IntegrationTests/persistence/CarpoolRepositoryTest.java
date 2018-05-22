@@ -1,12 +1,15 @@
 package thijs.oostdam.carpool.core.IntegrationTests.persistence;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import thijs.oostdam.carpool.config.Database;
-import thijs.oostdam.carpool.core.domain.*;
+import thijs.oostdam.carpool.core.domain.DomainFactory;
+import thijs.oostdam.carpool.core.domain.Person;
+import thijs.oostdam.carpool.core.domain.Stop;
+import thijs.oostdam.carpool.core.domain.Trip;
 import thijs.oostdam.carpool.core.persistence.CarpoolRepository;
 import thijs.oostdam.carpool.core.persistence.SQLUniqueIdGenerator;
 
@@ -22,14 +25,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Created by Thijs on 15-7-2017.
  */
-class CarpoolRepositoryTest {
+public class CarpoolRepositoryTest {
 
     private static CarpoolRepository fixture;
     private static JdbcTemplate jdbcTemplate;
     private static DomainFactory domainFactory;
 
-    @BeforeAll
-    static void beforeAll() throws SQLException {
+    @BeforeClass
+    public static void beforeAll() throws SQLException {
 
         DataSource ds = createDatabase();
         jdbcTemplate = new JdbcTemplate(ds);
@@ -41,8 +44,8 @@ class CarpoolRepositoryTest {
         fixture = new CarpoolRepository(ds);
     }
 
-    @AfterEach
-    void afterEach() {
+    @After
+    public void afterEach() {
         jdbcTemplate.batchUpdate(
                 "DELETE FROM PASSENGERS",
                 "DELETE FROM STOP",
@@ -51,7 +54,7 @@ class CarpoolRepositoryTest {
     }
 
     @Test
-    void storeTrip(){
+    public void storeTrip(){
         //insert trip for driver 1
         Person driver1 = domainFactory.person("email1", "name1");
         Collection<Stop> stops = new ArrayList<>();

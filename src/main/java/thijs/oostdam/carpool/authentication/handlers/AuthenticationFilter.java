@@ -27,7 +27,7 @@ public class AuthenticationFilter implements HttpHandler{
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String idToken = exchange.getRequestHeaders().getFirst("signed-id");
+        String idToken = exchange.getRequestHeaders().getFirst("login-token");
 
         //OutputStream is incompatible with java7 try with resources.
         OutputStream os = exchange.getResponseBody();

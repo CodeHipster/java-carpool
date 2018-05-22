@@ -1,6 +1,6 @@
 package thijs.oostdam.carpool.core.UnitTests;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import thijs.oostdam.carpool.core.domain.OverlapComparator;
 import thijs.oostdam.carpool.core.domain.Person;
 import thijs.oostdam.carpool.core.domain.Stop;
@@ -12,10 +12,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class OverlapComparatorTest {
+public class OverlapComparatorTest {
 
     @Test
-    void overlap() {
+    public void overlap() {
         Person driver = new Person(2, "test", "name");
         List<Stop> newStops = new ArrayList<>();
         newStops.add(new Stop(1, 1, 1, "address", 0));
@@ -38,7 +38,7 @@ class OverlapComparatorTest {
     }
 
     @Test
-    void overlapException() {
+    public void overlapException() {
         Person driver = new Person(2, "test", "name");
         List<Stop> newStops = new ArrayList<>();
         newStops.add(new Stop(1, 1, 1, "address", 0));

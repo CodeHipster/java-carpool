@@ -26,15 +26,15 @@ The implementation is safe enough for a showcasing app, but don't use it for som
 
 all functionality
 - register with email and password
-    - which gives acces, but user should not be able to participate
+    - which gives access, but user should not be able to participate
     - sends an email to user with a key to verify his email
 - verify key from email
     - enables user to participate
-- reset password
-    changes password to a random value which is send to the user
-- change password
-    will change the password to the provided value
 - login 
     user can login with email and password
 - authenticated calls
     user can do calls to routes requiring authentication with the token provide by the login.
+- reset password
+    changes password to a random value which is send to the user
+- change password
+    will change the password to the provided value

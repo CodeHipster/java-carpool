@@ -3,8 +3,8 @@ package thijs.oostdam.carpool.core.IntegrationTests.handlers;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.mockito.Mockito;
 import org.springframework.jdbc.core.JdbcTemplate;
 import thijs.oostdam.carpool.config.Database;
@@ -30,7 +30,7 @@ public abstract class HandlerTestBase {
     protected static CarpoolRepository carpoolRepository;
     protected static DomainFactory domainFactory;
 
-    @BeforeAll
+    @BeforeClass
     public static void beforeAll() throws SQLException {
 
         DataSource ds = createDatabase();
@@ -40,8 +40,8 @@ public abstract class HandlerTestBase {
         domainFactory = new DomainFactory(new SQLUniqueIdGenerator(ds));
     }
 
-    @AfterEach
-    void beforeEach() {
+    @After
+    public void beforeEach() {
         jdbcTemplate.batchUpdate(
                 "DELETE FROM PASSENGERS",
                 "DELETE FROM STOP",
@@ -80,5 +80,4 @@ public abstract class HandlerTestBase {
 
         return exchange;
     }
-
 }

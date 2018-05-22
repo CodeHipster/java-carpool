@@ -13,7 +13,7 @@
                 <!--32672 max size for derby varchar-->
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="password_hash" type="CHAR (64) FOR BIT DATA">
+            <column name="password_hash" type="VARCHAR (64) FOR BIT DATA">
                 <constraints nullable="false"/>
             </column>
             <column name="salt" type="CHAR (4) FOR BIT DATA">

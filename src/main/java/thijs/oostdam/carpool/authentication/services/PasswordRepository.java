@@ -40,13 +40,13 @@ public class PasswordRepository {
     public Optional<VerificationCode> getVerificationCode(VerificationCode code) {
 
         String sql = "Select email, code from verificationCode where email = ?";
-        return template.query(sql, new Object[]{code.email}, new verificationCodeExtractor());
+        return template.query(sql, new Object[]{code.email.email}, new verificationCodeExtractor());
     }
 
     public void removeVerificationCode(VerificationCode code) {
 
         String sql = "Delete from verificationCode where email = ?";
-        template.update(sql, code.email);
+        template.update(sql, code.email.email);
     }
 
     public void setVerified(Email email) {

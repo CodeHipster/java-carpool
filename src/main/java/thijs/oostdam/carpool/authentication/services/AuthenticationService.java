@@ -1,11 +1,11 @@
 package thijs.oostdam.carpool.authentication.services;
 
-import com.google.common.hash.HashCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thijs.oostdam.carpool.authentication.domain.*;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class AuthenticationService {
@@ -26,7 +26,6 @@ public class AuthenticationService {
         this.passwordHasher = new PasswordHasher(random);
         this.codeGenerator = new ReadableCodeGenerator();
         this.tokenBuilder = new TokenBuilder(keyPairProvider);
-
     }
 
     public void register(Registration registration){
@@ -76,15 +75,7 @@ public class AuthenticationService {
     public LoginToken login(Login login){
 
         //verify login
-        PasswordHash storedPassword = repository.getPassword(login.email)
-                .orElseThrow(() -> new RuntimeException("email not known."));
-
-        //use the salt that belongs to the password.
-        PasswordHash passwordHash = passwordHasher.hashPassword(login.password, storedPassword.getSalt());
-
-        if(!passwordHash.equals(HashCode.fromBytes(storedPassword.getHash()))){
-            throw new RuntimeException("Incorrect password.");
-        }
+        verifyPassword(login.email, login.password);
 
         //generate token
         return tokenBuilder.buildToken(login.email);
@@ -121,7 +112,7 @@ public class AuthenticationService {
         //use the salt that belongs to the password.
         PasswordHash passwordHash = passwordHasher.hashPassword(password, storedPassword.getSalt());
 
-        if(!passwordHash.equals(HashCode.fromBytes(storedPassword.getHash()))){
+        if(!Arrays.equals(passwordHash.getHash(), storedPassword.getHash())){
             throw new RuntimeException("Incorrect password.");
         }
     }

@@ -3,7 +3,7 @@ package thijs.oostdam.carpool.core.IntegrationTests.handlers;
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import thijs.oostdam.carpool.core.handlers.dto.TripHttp;
 import thijs.oostdam.carpool.core.handlers.resources.PassengerHandler;
 import thijs.oostdam.carpool.core.handlers.resources.TripHandler;
@@ -16,14 +16,14 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
-class PassengerHandlerTest extends HandlerTestBase {
+public class PassengerHandlerTest extends HandlerTestBase {
 
     private Gson gson = new Gson();
 
     @Test
-    void handleNewPassenger() throws IOException, URISyntaxException {
+    public void handleNewPassenger() throws IOException, URISyntaxException {
         TripService tripService = new TripService(carpoolRepository, domainFactory);
 
         TripHandler tripHandler = new TripHandler(tripService);

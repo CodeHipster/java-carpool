@@ -3,7 +3,7 @@ package thijs.oostdam.carpool.core.IntegrationTests.handlers;
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import thijs.oostdam.carpool.core.handlers.dto.TripHttp;
 import thijs.oostdam.carpool.core.handlers.resources.TripHandler;
 import thijs.oostdam.carpool.core.handlers.resources.TripsHandler;
@@ -19,11 +19,11 @@ import static org.assertj.core.api.Assertions.tuple;
 /**
  * @author Thijs Oostdam on 6-7-17.
  */
-class TripHandlerTest extends HandlerTestBase {
+public class TripHandlerTest extends HandlerTestBase {
     private Gson gson = new Gson();
 
     @Test
-    void handlePost() throws IOException, URISyntaxException {
+    public void handlePost() throws IOException, URISyntaxException {
         TripService tripService = new TripService(carpoolRepository, domainFactory);
         TripHandler tripHandler = new TripHandler(tripService);
         TripsHandler tripsHandler = new TripsHandler(tripService);
@@ -53,7 +53,7 @@ class TripHandlerTest extends HandlerTestBase {
     }
 
     @Test
-    void testDeleteHandle() throws IOException, URISyntaxException {
+    public void testDeleteHandle() throws IOException, URISyntaxException {
         TripService tripService = new TripService(carpoolRepository, domainFactory);
         TripHandler tripHandler = new TripHandler(tripService);
         TripsHandler tripsHandler = new TripsHandler(tripService);

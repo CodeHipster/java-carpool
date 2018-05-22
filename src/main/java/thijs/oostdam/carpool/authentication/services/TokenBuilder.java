@@ -29,7 +29,7 @@ public class TokenBuilder {
     public LoginToken buildToken(String token){
         //get the part after the dot. which is the signature.
         //verify the part before the dot.
-        String[] split = token.split(".");
+        String[] split = token.split("\\.");
         byte[] id = Base64.getDecoder().decode(split[0]);
         byte[] signature = Base64.getDecoder().decode(split[1]);
 

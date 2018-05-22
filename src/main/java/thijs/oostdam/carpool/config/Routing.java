@@ -3,6 +3,7 @@ package thijs.oostdam.carpool.config;
 import com.sun.net.httpserver.HttpServer;
 import thijs.oostdam.carpool.authentication.handlers.LoginHandler;
 import thijs.oostdam.carpool.authentication.services.AuthenticationService;
+import thijs.oostdam.carpool.authentication.services.EmailService;
 import thijs.oostdam.carpool.authentication.services.KeyPairProvider;
 import thijs.oostdam.carpool.authentication.services.PasswordRepository;
 import thijs.oostdam.carpool.core.domain.DomainFactory;
@@ -33,7 +34,7 @@ public class Routing {
         DomainFactory domainFactory = new DomainFactory(new SQLUniqueIdGenerator(dataSource));
         TripService tripService = new TripService(carpoolRepository, domainFactory);
         KeyPairProvider keyPairProvider = new KeyPairProvider();
-        AuthenticationService authenticationService = new AuthenticationService(keyPairProvider, passwordRepository);
+        AuthenticationService authenticationService = new AuthenticationService(keyPairProvider, passwordRepository, new EmailService());
 
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(8180), 0);

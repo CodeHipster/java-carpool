@@ -2,6 +2,7 @@ package thijs.oostdam.carpool.authentication.handlers;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.apache.http.NameValuePair;
@@ -60,17 +61,23 @@ public abstract class JsonHandler<I,O> implements HttpHandler {
         //TODO: add headers from response.
         //TODO: differentiate between user error and system errors
         try {
-            O response;
+            Response<O> response;
             switch(exchange.getRequestMethod()){
-                case "POST": response = post(object, queryParams).getBody(); break;
-                case "GET": response = get(object, queryParams).getBody(); break;
-                case "DELETE": response = delete(object, queryParams).getBody(); break;
+                case "POST": response = post(object, queryParams); break;
+                case "GET": response = get(object, queryParams); break;
+                case "DELETE": response = delete(object, queryParams); break;
                 default: throw new UnsupportedOperationException();
             }
-            if(response == null){
-                exchange.sendResponseHeaders(204, 0);
+            Headers responseHeaders = exchange.getResponseHeaders();
+            if(response.getHeaders() != null) {
+                for (NameValuePair nvp : response.getHeaders()) {
+                    responseHeaders.add(nvp.getName(), nvp.getValue());
+                }
+            }
+            if(response.getBody() == null){
+                exchange.sendResponseHeaders(204, -1);
             }else{
-                exchange.getResponseHeaders().add("Content-Type","application/json");
+                responseHeaders.add("Content-Type","application/json");
                 String json = gson.toJson(response);
                 exchange.sendResponseHeaders(200, json.getBytes().length);
                 os.write(json.getBytes());

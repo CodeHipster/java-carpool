@@ -60,7 +60,6 @@ public class TokenBuilder {
             byte[] signatureBytes = sig.sign();
             String signature = Base64.getEncoder().encodeToString(signatureBytes);
             String signedToken = Base64.getEncoder().encodeToString(emailBytes) + "." + signature;
-            LOG.debug(signedToken);
             return new LoginToken(email, signedToken);
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException | SignatureException e) {
             throw new RuntimeException("exception when when generating login token.", e);

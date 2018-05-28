@@ -46,7 +46,7 @@ public class AuthenticationService {
         repository.addVerificationCode(new VerificationCode(registration.email, verificationCode));
 
         //email verification code
-        emailService.sendVerificationEmail(verificationCode, registration.email);
+        emailService.sendVerificationCode(verificationCode, registration.email);
     }
 
     public LoginToken validateToken(String token){
@@ -72,7 +72,7 @@ public class AuthenticationService {
         repository.removeVerificationCode(code);
     }
 
-    public LoginToken login(Login login){
+    public LoginToken getLoginToken(Login login){
 
         //verify login
         verifyPassword(login.email, login.password);
@@ -115,6 +115,13 @@ public class AuthenticationService {
         if(!Arrays.equals(passwordHash.getHash(), storedPassword.getHash())){
             throw new RuntimeException("Incorrect password.");
         }
+    }
+
+    public void loginViaEmail(Login login) {
+        LoginToken loginToken = getLoginToken(login);
+
+        //email login token
+        emailService.sendLoginLink(loginToken);
     }
 }
 

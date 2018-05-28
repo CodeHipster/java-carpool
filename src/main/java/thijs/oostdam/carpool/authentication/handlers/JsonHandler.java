@@ -68,6 +68,7 @@ public abstract class JsonHandler<I,O> implements HttpHandler {
                 case "DELETE": response = delete(object, queryParams); break;
                 default: throw new UnsupportedOperationException();
             }
+            if(response == null) throw new IllegalArgumentException("Response cannot be null");
             Headers responseHeaders = exchange.getResponseHeaders();
             if(response.getHeaders() != null) {
                 for (NameValuePair nvp : response.getHeaders()) {

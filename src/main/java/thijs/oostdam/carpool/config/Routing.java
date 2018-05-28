@@ -40,8 +40,8 @@ public class Routing {
             HttpServer server = HttpServer.create(new InetSocketAddress(8180), 0);
             server.createContext("/", new HtmlHandler());
             server.createContext("/login", new LoginHandler(authenticationService));
-            server.createContext("/core/carpool.js", new JsHandler());
-            server.createContext("/carpool.css", new CssHandler());
+            server.createContext("/statics/core/carpool.js", new JsHandler());
+            server.createContext("/statics/core/carpool.css", new CssHandler());
             server.createContext("/trip", new TripHandler(tripService));
             server.createContext("/trips", new TripsHandler(tripService));
             server.createContext("/trip/passenger", new PassengerHandler(tripService));

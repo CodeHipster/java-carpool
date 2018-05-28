@@ -16,6 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import thijs.oostdam.carpool.authentication.domain.Email;
 import thijs.oostdam.carpool.authentication.domain.Login;
+import thijs.oostdam.carpool.authentication.domain.LoginToken;
 import thijs.oostdam.carpool.authentication.handlers.*;
 import thijs.oostdam.carpool.authentication.services.AuthenticationService;
 import thijs.oostdam.carpool.authentication.services.EmailService;
@@ -24,7 +25,10 @@ import thijs.oostdam.carpool.authentication.services.PasswordRepository;
 import thijs.oostdam.carpool.config.Database;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -48,9 +52,6 @@ public class AuthenticationIntegrationTest {
 
     @Mock
     private EmailService emailService;
-
-    @Mock
-    private HttpHandler dummyHandler;
 
     @BeforeClass
     public static void beforeAll() throws SQLException {
@@ -90,6 +91,8 @@ public class AuthenticationIntegrationTest {
         RegisterHandler registerHandler = new RegisterHandler(service);
         RegistrationVerificationHandler verificationHandler = new RegistrationVerificationHandler(service);
         LoginHandler loginHandler = new LoginHandler(service);
+        EmailLoginHandler emailLoginHandler = new EmailLoginHandler(service);
+        HttpHandler dummyHandler = new Mockito().mock(HttpHandler.class);
         AuthenticationFilter authenticationFilter = new AuthenticationFilter(service, dummyHandler);
         ResetPasswordHandler resetPasswordHandler = new ResetPasswordHandler(service);
         ChangePasswordHandler changePasswordHandler = new ChangePasswordHandler(service);
@@ -105,7 +108,7 @@ public class AuthenticationIntegrationTest {
 
         //intercept verification code
         ArgumentCaptor<String> codeCaptor = ArgumentCaptor.forClass(String.class);
-        verify(emailService).sendVerificationEmail(codeCaptor.capture(), any(Email.class));
+        verify(emailService).sendVerificationCode(codeCaptor.capture(), any(Email.class));
 
         // Verify code
         body = "{email:\"" + email + "\", code:\"" + codeCaptor.getValue() + "\"}";
@@ -133,6 +136,30 @@ public class AuthenticationIntegrationTest {
         ArgumentCaptor<HttpExchange> exchangeCaptor = ArgumentCaptor.forClass(HttpExchange.class);
         verify(dummyHandler).handle(exchangeCaptor.capture());
         assertThat(exchangeCaptor.getValue()).isEqualTo(post);
+
+        //login via email
+        body = "{email:\"" + email + "\", password:\"" + password + "\"}";
+        bodyStream = new ByteArrayInputStream(body.getBytes());
+        post = mockHttpExchange("POST", "", bodyStream, new Headers());
+        emailLoginHandler.handle(post);
+
+        //intercept login token
+        ArgumentCaptor<LoginToken> tokenCaptor = ArgumentCaptor.forClass(LoginToken.class);
+        verify(emailService).sendLoginLink(tokenCaptor.capture());
+        loginToken = tokenCaptor.getValue().token;
+
+        // authorized request
+        dummyHandler = new Mockito().mock(HttpHandler.class);
+        authenticationFilter = new AuthenticationFilter(service, dummyHandler);
+        body = "{dummy:\"value\"}";
+        bodyStream = new ByteArrayInputStream(body.getBytes());
+        Headers headers2 = new Headers();
+        headers2.add("login-token", loginToken);
+        post = mockHttpExchange("POST", "", bodyStream, headers2);
+        authenticationFilter.handle(post);
+
+        verify(dummyHandler).handle(exchangeCaptor.capture());
+        assertThat(exchangeCaptor.getAllValues().get(1)).isEqualTo(post);
 
         //reset password
         body = "{email:\"" + email + "\"}";

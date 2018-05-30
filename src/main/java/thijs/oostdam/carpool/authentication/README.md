@@ -42,3 +42,4 @@ The implementation is safe enough for a showcasing app, but don't use it for som
 ### TODO:
 - add lifetime to token
 - implement email service
+- unit tests

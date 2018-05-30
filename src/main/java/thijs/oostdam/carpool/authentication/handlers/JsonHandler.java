@@ -58,7 +58,6 @@ public abstract class JsonHandler<I,O> implements HttpHandler {
         //OutputStream is incompatible with java7 try with resources.
         OutputStream os = exchange.getResponseBody();
 
-        //TODO: add headers from response.
         //TODO: differentiate between user error and system errors
         try {
             Response<O> response;

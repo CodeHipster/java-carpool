@@ -12,4 +12,7 @@ public class CLIConfig {
 
     @CommandLine.Option(names = { "--db-auth" }, description = "The connection string to use for the authentication application.")
     public String authdb;
+
+    @CommandLine.Option(names = { "--mailgun-api" }, description = "API key to use with mailgun.")
+    public String mailgunApi;
 }

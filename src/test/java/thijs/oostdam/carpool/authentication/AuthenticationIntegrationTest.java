@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
-import thijs.oostdam.carpool.authentication.domain.Email;
+import thijs.oostdam.carpool.authentication.domain.EmailAddress;
 import thijs.oostdam.carpool.authentication.domain.Login;
 import thijs.oostdam.carpool.authentication.domain.LoginToken;
 import thijs.oostdam.carpool.authentication.handlers.*;
@@ -91,7 +91,6 @@ public class AuthenticationIntegrationTest {
         RegisterHandler registerHandler = new RegisterHandler(service);
         RegistrationVerificationHandler verificationHandler = new RegistrationVerificationHandler(service);
         LoginHandler loginHandler = new LoginHandler(service);
-        EmailLoginHandler emailLoginHandler = new EmailLoginHandler(service);
         HttpHandler dummyHandler = new Mockito().mock(HttpHandler.class);
         AuthenticationFilter authenticationFilter = new AuthenticationFilter(service, dummyHandler);
         ResetPasswordHandler resetPasswordHandler = new ResetPasswordHandler(service);
@@ -101,23 +100,23 @@ public class AuthenticationIntegrationTest {
         String email = "test@test.com";
 
         // Register
-        String body = "{email:\"" + email + "\", password:\"" + password + "\"}";
+        String body = "{address:\"" + email + "\", password:\"" + password + "\"}";
         InputStream bodyStream = new ByteArrayInputStream(body.getBytes());
         HttpExchange post = mockHttpExchange("POST", "", bodyStream, new Headers());
         registerHandler.handle(post);
 
         //intercept verification code
         ArgumentCaptor<String> codeCaptor = ArgumentCaptor.forClass(String.class);
-        verify(emailService).sendVerificationCode(codeCaptor.capture(), any(Email.class));
+        verify(emailService).sendVerificationCode(codeCaptor.capture(), any(EmailAddress.class));
 
         // Verify code
-        body = "{email:\"" + email + "\", code:\"" + codeCaptor.getValue() + "\"}";
+        body = "{address:\"" + email + "\", code:\"" + codeCaptor.getValue() + "\"}";
         bodyStream = new ByteArrayInputStream(body.getBytes());
         post = mockHttpExchange("POST", "", bodyStream, new Headers());
         verificationHandler.handle(post);
 
         //login
-        body = "{email:\"" + email + "\", password:\"" + password + "\"}";
+        body = "{address:\"" + email + "\", password:\"" + password + "\"}";
         bodyStream = new ByteArrayInputStream(body.getBytes());
         post = mockHttpExchange("POST", "", bodyStream, new Headers());
         loginHandler.handle(post);
@@ -137,11 +136,11 @@ public class AuthenticationIntegrationTest {
         verify(dummyHandler).handle(exchangeCaptor.capture());
         assertThat(exchangeCaptor.getValue()).isEqualTo(post);
 
-        //login via email
-        body = "{email:\"" + email + "\", password:\"" + password + "\"}";
+        //login via address
+        body = "{address:\"" + email + "\"}";
         bodyStream = new ByteArrayInputStream(body.getBytes());
         post = mockHttpExchange("POST", "", bodyStream, new Headers());
-        emailLoginHandler.handle(post);
+        loginHandler.handle(post);
 
         //intercept login token
         ArgumentCaptor<LoginToken> tokenCaptor = ArgumentCaptor.forClass(LoginToken.class);
@@ -162,7 +161,7 @@ public class AuthenticationIntegrationTest {
         assertThat(exchangeCaptor.getAllValues().get(1)).isEqualTo(post);
 
         //reset password
-        body = "{email:\"" + email + "\"}";
+        body = "{address:\"" + email + "\"}";
         bodyStream = new ByteArrayInputStream(body.getBytes());
         post = mockHttpExchange("POST", "", bodyStream, new Headers());
         resetPasswordHandler.handle(post);
@@ -173,7 +172,7 @@ public class AuthenticationIntegrationTest {
         String resetPassword = passwordCaptor.getValue().password;
 
         //login
-        body = "{email:\"" + email + "\", password:\"" + resetPassword + "\"}";
+        body = "{address:\"" + email + "\", password:\"" + resetPassword + "\"}";
         bodyStream = new ByteArrayInputStream(body.getBytes());
         post = mockHttpExchange("POST", "", bodyStream, new Headers());
         loginHandler.handle(post);
@@ -183,13 +182,13 @@ public class AuthenticationIntegrationTest {
 
         //change password
         String newPassword = "test2";
-        body = "{email:\"" + email + "\", oldPassword:\"" + resetPassword + "\", newPassword:\"" + newPassword + "\"}";
+        body = "{address:\"" + email + "\", oldPassword:\"" + resetPassword + "\", newPassword:\"" + newPassword + "\"}";
         bodyStream = new ByteArrayInputStream(body.getBytes());
         post = mockHttpExchange("POST", "", bodyStream, new Headers());
         changePasswordHandler.handle(post);
 
         //login
-        body = "{email:\"" + email + "\", password:\"" + newPassword + "\"}";
+        body = "{address:\"" + email + "\", password:\"" + newPassword + "\"}";
         bodyStream = new ByteArrayInputStream(body.getBytes());
         post = mockHttpExchange("POST", "", bodyStream, new Headers());
         loginHandler.handle(post);

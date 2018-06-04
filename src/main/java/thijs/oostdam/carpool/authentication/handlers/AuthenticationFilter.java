@@ -33,7 +33,7 @@ public class AuthenticationFilter implements HttpHandler{
         OutputStream os = exchange.getResponseBody();
         try {
             LoginToken token = service.validateToken(idToken);
-            exchange.setAttribute("email",token.email.email);
+            exchange.setAttribute("address",token.email.address);
             next.handle(exchange);
         } catch (Exception e) {
             //TODO: differentiate between user error and system error.

@@ -41,15 +41,15 @@ public class TripHandlerTest extends HandlerTestBase {
 
         //assert contents of the trip.
         assertThat(insertedTrip.id()).isNotIn(0);
-        assertThat(insertedTrip.driver().email()).isEqualTo("email@email.com");
+        assertThat(insertedTrip.driver().email()).isEqualTo("address@address.com");
         assertThat(insertedTrip.driver().name()).isEqualTo("Firstname Lastname");
         assertThat(insertedTrip.maxPassengers()).isEqualTo(5);
         assertThat(insertedTrip.stops()).extracting("latitude", "longitude", "index", "address").containsExactlyInAnyOrder(
                 tuple(1.0,1.0,0, "whatup"),
                 tuple(2.0,2.0,1, "whatup2"));
         assertThat(insertedTrip.stops()).extracting("id").isNotIn(0);
-        assertThat(insertedTrip.passengers()).extracting("email", "name").containsExactly(
-                tuple("email@email.com","Firstname Lastname"));
+        assertThat(insertedTrip.passengers()).extracting("address", "name").containsExactly(
+                tuple("address@address.com","Firstname Lastname"));
     }
 
     @Test

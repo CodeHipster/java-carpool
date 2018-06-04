@@ -47,7 +47,7 @@ public class PassengerHandlerTest extends HandlerTestBase {
                 "  \"id\":"+insertedTrip.id()+" ,\n" +
                 "  \"passengers\" : [\n" +
                 "    {\n" +
-                "    \"email\" : \"email2@email.com\",\n" +
+                "    \"address\" : \"email2@address.com\",\n" +
                 "    \"name\" : \"Some Name 2\"\n" +
                 "    }\n" +
                 "  ]\n" +
@@ -68,10 +68,10 @@ public class PassengerHandlerTest extends HandlerTestBase {
         TripHttp tripWithPassenger = tripHttp[0];
         assertThat(tripWithPassenger.passengers().size()).isEqualTo(2);
         long count = tripWithPassenger.passengers().stream()
-                .filter(p -> p.email().equals("email2@email.com") && p.name().equals("Some Name 2")).count();
+                .filter(p -> p.email().equals("email2@address.com") && p.name().equals("Some Name 2")).count();
         assertThat(count).isEqualTo(1);
         count = tripWithPassenger.passengers().stream()
-                .filter(p -> p.email().equals("email@email.com") && p.name().equals("Firstname Lastname")).count();
+                .filter(p -> p.email().equals("address@address.com") && p.name().equals("Firstname Lastname")).count();
         assertThat(count).isEqualTo(1);
     }
 }

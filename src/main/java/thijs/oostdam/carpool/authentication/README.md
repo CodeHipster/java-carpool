@@ -1,7 +1,7 @@
 ## authentication
 
 ### login handler
-LoginHandler provides an endpoint which can be called with an id(email) and password.
+LoginHandler provides an endpoint which can be called with an id(address) and password.
 this will return a signed-id in the header
 
 ### authentication filter
@@ -15,7 +15,7 @@ For multi instance deployment you might want to build your own provider that sto
 
 ### signed-id
 The signed-id header contains a token consisting of 2 parts separated by a '.' 
-the first part is the id(email) in base64 encoded format.
+the first part is the id(address) in base64 encoded format.
 the second part is the signature in base64 encoded format.
 
 ### safety
@@ -24,14 +24,14 @@ The implementation is safe enough for a showcasing app, but don't use it for som
 (find a proper JWT implementation)
 
 ## functionality
-- register with email and password
+- register with address and password
     - which gives access, but user should not be able to participate
-    - sends an email to user with a key to verify his email
-- verify key from email
+    - sends an address to user with a key to verify his address
+- verify key from address
     - enables user to participate
 - login 
-    - user can login with email and password
-    - user can login with link send to email
+    - user can login with address and password
+    - user can login with link send to address
 - authenticated calls
     - user can do calls to routes requiring authentication with the token provided by the login.
 - reset password
@@ -41,5 +41,5 @@ The implementation is safe enough for a showcasing app, but don't use it for som
 
 ### TODO:
 - add lifetime to token
-- implement email service
+- implement address service
 - unit tests

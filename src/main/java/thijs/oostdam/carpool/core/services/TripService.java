@@ -68,7 +68,7 @@ public class TripService {
 
     public void addPassenger(int tripId, IPerson newPassenger) {
         Preconditions.checkNotNull(newPassenger, "A passenger must be given.");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(newPassenger.email()), "Email of passenger must be given.");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(newPassenger.email()), "EmailAddress of passenger must be given.");
         //check if trip exists.
         Optional<Trip> tripOptional = carpoolRepository.searchTrip(tripId);
         Preconditions.checkArgument(tripOptional.isPresent(), "Trip(%s) must exist before adding passenger(%s)", tripId, newPassenger.email());

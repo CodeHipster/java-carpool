@@ -11,7 +11,7 @@
       <column name="id" type="int">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="email" type="varchar(32672)">
+      <column name="address" type="varchar(32672)">
         <!--32672 max size for derby varchar-->
         <constraints unique="true" nullable="false"/>
       </column>
@@ -27,7 +27,7 @@
     <createIndex indexName="idx_person_email"
                  tableName="person"
                  unique="true">
-      <column name="email"/>
+      <column name="address"/>
     </createIndex>
   </changeSet>
 

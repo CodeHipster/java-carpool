@@ -73,7 +73,7 @@ public class CarpoolRepository {
 
     public Optional<Person> getPerson(String email) {
         List<Person> query = jdbcTemplate.query("SELECT id, email, name FROM person WHERE email = ?", new Object[]{email}
-                , (ResultSet rs, int rowNum) -> new Person(rs.getInt("id"), rs.getString("email"), rs.getString("name")));
+                , (ResultSet rs, int rowNum) -> new Person(rs.getInt("id"), rs.getString("address"), rs.getString("name")));
 
         if (query.isEmpty()) return Optional.empty();
             //TODO warning if more then 1 records returned?

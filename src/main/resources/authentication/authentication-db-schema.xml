@@ -9,7 +9,7 @@
     <!--arent the indices going to be way big with such huge emails?-->
     <changeSet id="authentication table" author="Thijs Oostdam">
         <createTable tableName="authentication">
-            <column name="email" type="varchar(32672)">
+            <column name="address" type="varchar(32672)">
                 <!--32672 max size for derby varchar-->
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -28,7 +28,7 @@
 
     <changeSet id="verificationCode table" author="Thijs Oostdam">
         <createTable tableName="verificationCode">
-            <column name="email" type="varchar(32672)">
+            <column name="address" type="varchar(32672)">
                 <!--32672 max size for derby varchar-->
                 <constraints primaryKey="true" nullable="false"/>
             </column>

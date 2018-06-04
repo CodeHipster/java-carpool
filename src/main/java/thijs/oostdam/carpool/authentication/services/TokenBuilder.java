@@ -2,7 +2,7 @@ package thijs.oostdam.carpool.authentication.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thijs.oostdam.carpool.authentication.domain.Email;
+import thijs.oostdam.carpool.authentication.domain.EmailAddress;
 import thijs.oostdam.carpool.authentication.domain.LoginToken;
 
 import java.io.UnsupportedEncodingException;
@@ -39,7 +39,7 @@ public class TokenBuilder {
             sig.initVerify(keyPairProvider.getKeyPair().getPublic());
             sig.update(id);
             if(sig.verify(signature)){
-                return new LoginToken(new Email(new String(id,"utf-8")), token);
+                return new LoginToken(new EmailAddress(new String(id,"utf-8")), token);
             }
             else{
                 throw new RuntimeException("Signature is not valid.");
@@ -50,10 +50,10 @@ public class TokenBuilder {
         }
     }
 
-    public LoginToken buildToken(Email email){
-        //sign the email.
+    public LoginToken buildToken(EmailAddress email){
+        //sign the address.
         try {
-            byte[] emailBytes = email.email.getBytes("UTF8");
+            byte[] emailBytes = email.address.getBytes("UTF8");
             Signature sig = Signature.getInstance("SHA256withRSA");
             sig.initSign(keyPairProvider.getKeyPair().getPrivate());
             sig.update(emailBytes);

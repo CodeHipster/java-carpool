@@ -42,7 +42,7 @@ INNER JOIN passengers ON trip.id = passengers.trip_id
 INNER JOIN person as passenger ON passengers.person_id = passenger.id
 WHERE trip.driver_id = 5;
 
-SELECT trip.id as tripId, trip.max_passengers, driver.id as driverId, driver.email as driverEmail, driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure, passenger.id as passengerId, passenger.email as passengerEmail, passenger.name as passengerName
+SELECT trip.id as tripId, trip.max_passengers, driver.id as driverId, driver.address as driverEmail, driver.name as driverName, stop.id as stopId, stop.longitude, stop.latitude, stop.departure, passenger.id as passengerId, passenger.address as passengerEmail, passenger.name as passengerName
 FROM trip
 INNER JOIN person as driver ON trip.driver_id = driver.id
 INNER JOIN stops ON trip.id = stops.trip_id

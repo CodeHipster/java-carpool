@@ -3,7 +3,7 @@ package thijs.oostdam.carpool.authentication.handlers;
 import org.apache.http.NameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thijs.oostdam.carpool.authentication.domain.Email;
+import thijs.oostdam.carpool.authentication.domain.EmailAddress;
 import thijs.oostdam.carpool.authentication.domain.VerificationCode;
 import thijs.oostdam.carpool.authentication.services.AuthenticationService;
 import thijs.oostdam.carpool.authentication.transport.VerificationCodeHttp;
@@ -12,8 +12,8 @@ import thijs.oostdam.carpool.generic.Response;
 import java.util.List;
 
 public class RegistrationVerificationHandler extends JsonHandler<VerificationCodeHttp, Void> {
-    //receive a code and an email
-    //if code matches verification then email is verified
+    //receive a code and an address
+    //if code matches verification then address is verified
 
     private static final Logger LOG = LoggerFactory.getLogger(RegisterHandler.class);
     private static final String ERROR_TEMPLATE = "'{'\"message\":\"{0}\"'}'";
@@ -30,7 +30,7 @@ public class RegistrationVerificationHandler extends JsonHandler<VerificationCod
 
         service.verifyCode(
                 new VerificationCode(
-                        new Email(code.email), code.code));
+                        new EmailAddress(code.email), code.code));
 
         return new Response<>(null, null);
     }

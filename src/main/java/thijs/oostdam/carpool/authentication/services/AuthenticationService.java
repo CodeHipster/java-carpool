@@ -45,7 +45,7 @@ public class AuthenticationService {
         //Store verification code in db
         repository.addVerificationCode(new VerificationCode(registration.email, verificationCode));
 
-        //email verification code
+        //address verification code
         emailService.sendVerificationCode(verificationCode, registration.email);
     }
 
@@ -81,7 +81,7 @@ public class AuthenticationService {
         return tokenBuilder.buildToken(login.email);
     }
 
-    public void resetPassword(Email email){
+    public void resetPassword(EmailAddress email){
         //generate new password
         String password = codeGenerator.generateCode(8);
 
@@ -92,7 +92,7 @@ public class AuthenticationService {
         //store password in db
         repository.updatePassword(email, hashedPassword);
 
-        //send email with new password and link to change it
+        //send address with new password and link to change it
         emailService.sendNewLogin(login);
     }
 
@@ -104,10 +104,10 @@ public class AuthenticationService {
         repository.updatePassword(newPassword.email, passwordHash);
     }
 
-    private void verifyPassword(Email email, String password){
+    private void verifyPassword(EmailAddress email, String password){
 
         PasswordHash storedPassword = repository.getPassword(email)
-                .orElseThrow(() -> new RuntimeException("email not known."));
+                .orElseThrow(() -> new RuntimeException("address not known."));
 
         //use the salt that belongs to the password.
         PasswordHash passwordHash = passwordHasher.hashPassword(password, storedPassword.getSalt());
@@ -118,9 +118,9 @@ public class AuthenticationService {
     }
 
     public void loginViaEmail(Login login) {
-        LoginToken loginToken = getLoginToken(login);
+        LoginToken loginToken = tokenBuilder.buildToken(login.email);
 
-        //email login token
+        //address login token
         emailService.sendLoginLink(loginToken);
     }
 }

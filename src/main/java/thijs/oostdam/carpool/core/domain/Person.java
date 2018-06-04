@@ -14,10 +14,10 @@ public class Person implements IPerson {
     private String name;
 
     public Person(int id, String email, String name){
-        Preconditions.checkArgument(email != null && !email.trim().isEmpty(), "Email is required");
+        Preconditions.checkArgument(email != null && !email.trim().isEmpty(), "EmailAddress is required");
         Preconditions.checkArgument(name != null && !name.trim().isEmpty(), "name is required");
         //TODO: place these checks in the persistence layer?
-        Preconditions.checkArgument(email.getBytes().length < 255, "email maxlength is 255");
+        Preconditions.checkArgument(email.getBytes().length < 255, "address maxlength is 255");
         Preconditions.checkArgument(name.getBytes().length < 255, "name maxlength is 255");
         this.id = id;
         this.email = email;

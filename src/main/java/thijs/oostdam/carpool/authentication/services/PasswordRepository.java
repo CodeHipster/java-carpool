@@ -3,7 +3,7 @@ package thijs.oostdam.carpool.authentication.services;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import thijs.oostdam.carpool.authentication.domain.Email;
+import thijs.oostdam.carpool.authentication.domain.EmailAddress;
 import thijs.oostdam.carpool.authentication.domain.PasswordHash;
 import thijs.oostdam.carpool.authentication.domain.VerificationCode;
 
@@ -19,44 +19,44 @@ public class PasswordRepository {
         this.template = new JdbcTemplate(ds);
     }
 
-    public Optional<PasswordHash> getPassword(Email email){
+    public Optional<PasswordHash> getPassword(EmailAddress email){
 
         String sql = "Select password_hash, salt from authentication where email = ?";
-        return template.query(sql, new Object[]{email.email}, new PasswordExtractor());
+        return template.query(sql, new Object[]{email.address}, new PasswordExtractor());
     }
 
-    public void addPassword(Email email, PasswordHash passwordHash){
+    public void addPassword(EmailAddress email, PasswordHash passwordHash){
 
         String sql = "Insert into authentication (email, password_hash, salt, verified) VALUES (?,?,?,?) ";
-        template.update(sql, email.email, passwordHash.getHash(), passwordHash.getSalt(), false);
+        template.update(sql, email.address, passwordHash.getHash(), passwordHash.getSalt(), false);
     }
 
     public void addVerificationCode(VerificationCode code){
 
         String sql = "Insert into verificationCode (email, code) VALUES (?,?) ";
-        template.update(sql, code.email.email, code.code);
+        template.update(sql, code.email.address, code.code);
     }
 
     public Optional<VerificationCode> getVerificationCode(VerificationCode code) {
 
         String sql = "Select email, code from verificationCode where email = ?";
-        return template.query(sql, new Object[]{code.email.email}, new verificationCodeExtractor());
+        return template.query(sql, new Object[]{code.email.address}, new verificationCodeExtractor());
     }
 
     public void removeVerificationCode(VerificationCode code) {
 
         String sql = "Delete from verificationCode where email = ?";
-        template.update(sql, code.email.email);
+        template.update(sql, code.email.address);
     }
 
-    public void setVerified(Email email) {
+    public void setVerified(EmailAddress email) {
         String sql = "UPDATE authentication SET verified = true WHERE email = ?";
-        template.update(sql, email.email);
+        template.update(sql, email.address);
     }
 
-    public void updatePassword(Email email, PasswordHash password) {
+    public void updatePassword(EmailAddress email, PasswordHash password) {
         String sql = "update authentication set password_hash = ?, salt = ? where email = ?";
-        template.update(sql, password.getHash(), password.getSalt(), email.email);
+        template.update(sql, password.getHash(), password.getSalt(), email.address);
     }
 
     static class PasswordExtractor implements ResultSetExtractor<Optional<PasswordHash>> {
@@ -77,7 +77,7 @@ public class PasswordRepository {
             while (resultSet.next()) {
                 return Optional.of(
                         new VerificationCode(
-                                new Email(resultSet.getString("email"))
+                                new EmailAddress(resultSet.getString("address"))
                                 , resultSet.getString("code")));
             }
             return Optional.empty();

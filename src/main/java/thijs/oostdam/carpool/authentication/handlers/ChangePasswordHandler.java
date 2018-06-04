@@ -3,7 +3,7 @@ package thijs.oostdam.carpool.authentication.handlers;
 import org.apache.http.NameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thijs.oostdam.carpool.authentication.domain.Email;
+import thijs.oostdam.carpool.authentication.domain.EmailAddress;
 import thijs.oostdam.carpool.authentication.domain.NewPassword;
 import thijs.oostdam.carpool.authentication.services.AuthenticationService;
 import thijs.oostdam.carpool.authentication.transport.NewPasswordHttp;
@@ -25,7 +25,7 @@ public class ChangePasswordHandler extends JsonHandler<NewPasswordHttp, Void>{
     @Override
     public Response<Void> post(NewPasswordHttp newPassword, List<NameValuePair> queryParams){
 
-        service.changePassword(new NewPassword(new Email(newPassword.email), newPassword.oldPassword, newPassword.newPassword));
+        service.changePassword(new NewPassword(new EmailAddress(newPassword.email), newPassword.oldPassword, newPassword.newPassword));
         return new Response<>(null, null);
     }
 

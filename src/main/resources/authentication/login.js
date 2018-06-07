@@ -16,7 +16,7 @@ Vue.component('login', {
     methods: {
         loginWithPassword: function () {
             //TODO: verify input
-            fetch("/login",
+            fetch("/auth/login",
                 {
                     headers: {
                         'Accept': 'application/json',
@@ -30,7 +30,7 @@ Vue.component('login', {
         },
         loginWithEmail: function() {
             //TODO: verify input
-            fetch("/login/email",
+            fetch("/auth/login",
                 {
                     headers: {
                         'Accept': 'application/json',
@@ -44,6 +44,64 @@ Vue.component('login', {
         }
     }
 })
+
+Vue.component('register',{
+    template:`<div>
+    <input type="email" v-model="registration.email" name="email"/>
+    <input type="password" v-model="registration.password" name="password">
+    <input type="button" value="register" v-on:click="register">
+</div>`,
+    data:function(){
+        return {registration:{email:'', password:''}}
+    },
+    methods:{
+        register: function(){
+            //TODO: verify input
+            fetch("/auth/register",
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify(this.registration)
+                })
+                .then(function(res){ console.log(res) })
+                .catch(function(res){ console.log(res) })
+        }
+    }
+})
+
+Vue.component('change-password',{
+    template:`<div>
+    <input type="email" v-model="changeData.email" name="email"/>
+    <input type="password" v-model="changeData.oldPassword" name="old-password">
+    <input type="password" v-model="changeData.newPassword" name="new-password">
+    <input type="button" value="change password" v-on:click="changePassword">
+</div>`,
+    data:function(){
+        return {changeData:{email:'', oldPassword:'', newPassword:''}}
+    },
+    methods:{
+        changePassword: function(){
+            //TODO: verify input
+            fetch("/auth/change-password",
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify(this.changeData)
+                })
+                .then(function(res){ console.log(res) })
+                .catch(function(res){ console.log(res) })
+        }
+    }
+})
+Vue.component('reset-password',{})
+Vue.component('verify',{})
+
 
 var loginApp = new Vue({
     el: '#app'

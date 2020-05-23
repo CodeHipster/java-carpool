@@ -12,6 +12,7 @@ import java.net.URL;
  * @author Thijs Oostdam on 5-7-17.
  */
 public class JsHandler implements HttpHandler {
+
     @Override
     public void handle(HttpExchange t) throws IOException {
         URL resource = Resources.getResource("core/carpool.js");

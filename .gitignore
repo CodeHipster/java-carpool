@@ -3,4 +3,10 @@ target/
 .idea/
 derby.log
 coreDB/
+carpoolDB/
 authenticationDB/
+
+.classpath
+.project
+org.*
+.vscode/

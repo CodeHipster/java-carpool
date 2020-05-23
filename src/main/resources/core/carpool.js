@@ -106,7 +106,7 @@ Vue.component('google-places-image', {
             var queryData = {
                 'size':this.size,
                 'maptype': 'roadmap',
-                'key':'AIzaSyBxrrybSvnnHZfKp4EK2CmFkGQhCOZ1BxE'}
+                'key':'AIzaSyALo3f6cz6o0Zm3whV_NIHLfulvJFHDB90'}
             placesToRender = this.places
             if(placesToRender != null){
                 placesToRender = this.places.filter(function(e){

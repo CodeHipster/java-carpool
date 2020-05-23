@@ -12,7 +12,7 @@ public class MailgunIntegrationTest {
 
     @Before
     public void before(){
-        service = new MailGunEmailService("a94f9f7e38db60d491f690b28ed5e6ce-b6183ad4-7714d989", "test@oostd.am");
+        service = new MailGunEmailService("insert api key", "test@oostd.am");
     }
 
     @Test
